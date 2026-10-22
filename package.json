@@ -1,0 +1,15 @@
+{
+  "name": "prism-review",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PRism: a read-only pull request review gate. Evidence first, then the comment.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=22.18" },
+  "scripts": {
+    "test": "node --test",
+    "eval": "node evals/run.mjs",
+    "eval:dry": "node evals/run.mjs --dry-run",
+    "eval:codex": "node evals/run.mjs --agent codex"
+  }
+}

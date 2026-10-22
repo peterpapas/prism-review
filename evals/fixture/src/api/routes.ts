@@ -1,4 +1,4 @@
-import { createOrder } from '../orders/create';
+import { createOrder } from '../orders/create.ts';
 
 const orderInput = { requestId: 'uuid' };
 const validateBody = (_schema: unknown) => async (requestId: string) => {

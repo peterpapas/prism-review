@@ -1,7 +1,10 @@
-import { createOrder } from '../src/orders/create';
+import { createOrder } from '../src/orders/create.ts';
+import { orders } from '../src/orders/schema.ts';
 
-// Illustrative fixture: sequential calls do not exercise concurrent inserts.
-export async function happyPath() {
+// Sequential calls only: this does not exercise concurrent inserts.
+export async function happyPath(): Promise<number> {
+  orders.reset();
   await createOrder('id-1');
   await createOrder('id-1');
+  return orders.count();
 }
