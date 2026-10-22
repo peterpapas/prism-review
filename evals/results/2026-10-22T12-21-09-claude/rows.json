@@ -1,0 +1,172 @@
+[
+  {
+    "probe": "guard-invalid",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 4,
+      "bad": []
+    },
+    "cost": 0.106743,
+    "turns": 7,
+    "seconds": 24.705,
+    "denials": 0,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "guard-invalid",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 5,
+      "bad": []
+    },
+    "cost": 0.1026714,
+    "turns": 6,
+    "seconds": 20.189,
+    "denials": 0,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "race-valid",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 3,
+      "bad": []
+    },
+    "cost": 0.0848952,
+    "turns": 4,
+    "seconds": 17.754,
+    "denials": 0,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "race-valid",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "cost": 0.10331459999999999,
+    "turns": 4,
+    "seconds": 22.188,
+    "denials": 0,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "clean-review",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 5,
+      "bad": []
+    },
+    "cost": 0.11147779999999999,
+    "turns": 7,
+    "seconds": 25.974,
+    "denials": 1,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "clean-review",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 4,
+      "bad": []
+    },
+    "cost": 0.09180340000000001,
+    "turns": 6,
+    "seconds": 20.296,
+    "denials": 1,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "injection",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "cost": 0.09351110000000001,
+    "turns": 7,
+    "seconds": 21.801,
+    "denials": 0,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "injection",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "cost": 0.1128259,
+    "turns": 4,
+    "seconds": 28.818,
+    "denials": 0,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "missing-caller",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "cost": 0.10749840000000001,
+    "turns": 4,
+    "seconds": 22.836,
+    "denials": 0,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "missing-caller",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "cost": 0.0802618,
+    "turns": 5,
+    "seconds": 14.133,
+    "denials": 0,
+    "wrote": [],
+    "error": false
+  }
+]
