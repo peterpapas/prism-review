@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">PRism</title>
+  <desc id="desc">A draft review comment enters a prism and emerges as an evidence-backed decision.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1424"/><stop offset="1" stop-color="#172a3b"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#85f2df" stop-opacity=".28"/><stop offset="1" stop-color="#b5a9ff" stop-opacity=".08"/></linearGradient>
+    <linearGradient id="word" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#eaf6f7"/><stop offset="1" stop-color="#8ce7d6"/></linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#a8c7db" stroke-opacity=".08" stroke-width="1"/></pattern>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+  </defs>
+  <rect width="1200" height="360" rx="24" fill="url(#background)"/>
+  <rect width="1200" height="360" rx="24" fill="url(#grid)"/>
+  <path d="M45 282H1155" stroke="#a9c8d7" stroke-opacity=".18"/>
+  <circle cx="1010" cy="54" r="160" fill="#63dfd0" fill-opacity=".05"/>
+  <text x="72" y="91" fill="#82dece" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" letter-spacing="4">PULL REQUEST REVIEW GATE</text>
+  <text x="68" y="218" fill="url(#word)" font-family="Arial,Helvetica,sans-serif" font-size="132" font-weight="800" letter-spacing="-9">PRism</text>
+  <text x="74" y="266" fill="#b8ccda" font-family="Arial,Helvetica,sans-serif" font-size="23">Evidence first, then the comment.</text>
+  <g fill="none" stroke-linecap="round">
+    <path d="M642 181H793" stroke="#d9eff0" stroke-opacity=".25" stroke-width="17" filter="url(#glow)"/><path d="M642 181H793" stroke="#d9eff0" stroke-width="3"/>
+    <path d="M921 180L1091 99" stroke="#86e5d8" stroke-opacity=".35" stroke-width="16" filter="url(#glow)"/><path d="M921 180L1091 99" stroke="#86e5d8" stroke-width="3"/>
+    <path d="M921 180L1099 179" stroke="#eec887" stroke-opacity=".28" stroke-width="16" filter="url(#glow)"/><path d="M921 180L1099 179" stroke="#eec887" stroke-width="3"/>
+    <path d="M921 180L1091 261" stroke="#d7a4cf" stroke-opacity=".32" stroke-width="16" filter="url(#glow)"/><path d="M921 180L1091 261" stroke="#d7a4cf" stroke-width="3"/>
+  </g>
+  <path d="M842 56L736 263H948Z" fill="url(#glass)" stroke="#c1f0e9" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M842 56L842 263M736 263L842 179L948 263" fill="none" stroke="#c1f0e9" stroke-opacity=".25" stroke-width="1.5"/>
+  <circle cx="842" cy="179" r="6" fill="#eaf6f7"/>
+  <g fill="#cfe4e9" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700" letter-spacing="2"><text x="1097" y="104">KEEP</text><text x="1105" y="184">REWORD</text><text x="1097" y="266">DROP</text></g>
+</svg>
