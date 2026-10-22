@@ -6,7 +6,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { probes, buildPrompt } from '../evals/probes.mjs';
-import { citationCheck, grade, graders } from '../evals/graders.mjs';
+import { citationCheck, grade, graders, suggestionLines } from '../evals/graders.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -47,4 +47,14 @@ test('prompts never ask the agent to write, post or run tests', () => {
     if (p.mode === 'Gate') assert.ok(p.drafts.every((d) => prompt.includes(d)), `${p.id}: a draft is missing from the prompt`);
     else assert.equal(p.drafts.length, 0, `${p.id}: Review probes carry no drafts`);
   }
+});
+
+test('a reworded race finding can call the proposed lock incorrect', () => {
+  const output = 'Draft 1 src/orders/create.ts:9 — Reword: the process lock is incorrect. src/orders/schema.ts:2 has no unique constraint. Add a unique index to prevent duplicate inserts.';
+  assert.equal(grade('race-valid', output, join(root, 'evals/fixture')).pass, true);
+});
+
+test('an empty suggested-comments heading is not a proposed comment', () => {
+  assert.deepEqual(suggestionLines('Suggested comments: none; the race is already handled.\nNo supported findings.'), []);
+  assert.deepEqual(suggestionLines('Suggested comments: n/a because the race is handled.\nNo supported findings.'), []);
 });

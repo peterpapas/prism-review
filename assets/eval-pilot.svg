@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="670" viewBox="0 0 1200 670" role="img" aria-labelledby="title desc">
+  <title id="title">PRism first pilot: five grader passes in both arms</title>
+  <desc id="desc">5 of five synthetic probes passed in the baseline arm and 5 of five in the PRism arm. Total recorded cost was 0.453 US dollars for the baseline and 0.542 for PRism. Mean elapsed time was 19 and 25 seconds. One run per cell. The baseline was contaminated by an available legacy skill, so these bars do not establish a performance difference.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0b1727"/><stop offset="1" stop-color="#132a39"/></linearGradient>
+    <style>
+      .eyebrow{font:700 15px Arial,sans-serif;letter-spacing:3px;fill:#77dfcf}
+      .heading{font:700 35px Arial,sans-serif;fill:#eef7f9}
+      .sub{font:18px Arial,sans-serif;fill:#b6ced9}
+      .metric{font:700 18px Arial,sans-serif;fill:#e9f5f6}
+      .scale{font:14px Arial,sans-serif;fill:#9cb9c8}
+      .arm{font:700 17px Arial,sans-serif;fill:#e6f2f4}
+      .value{font:700 18px Arial,sans-serif;fill:#f4f9fa}
+      .foot{font:15px Arial,sans-serif;fill:#c3d4dd}
+    </style>
+  </defs>
+  <rect width="1200" height="670" rx="22" fill="url(#bg)"/>
+  <text x="64" y="55" class="eyebrow">FIRST RECORDED PILOT</text>
+  <text x="64" y="98" class="heading">What the harness observed</text>
+  <text x="64" y="126" class="sub">Five synthetic probes · one run per arm · Claude Sonnet</text>
+  <g>
+    <rect x="64" y="151" width="1072" height="142" rx="14" fill="#14283a" stroke="#294153"/>
+    <text x="88" y="182" class="metric">Grader passes</text>
+    <text x="906" y="182" class="scale">scale 0–5 probes</text>
+    <text x="88" y="220" class="arm">Baseline*</text>
+      <rect x="336" y="202" width="570" height="24" rx="5" fill="#1f3345"/>
+      <rect x="336" y="202" width="570" height="24" rx="5" fill="#e9af80"/>
+      <text x="930" y="220" class="value">5/5</text>
+<text x="88" y="259" class="arm">PRism</text>
+      <rect x="336" y="241" width="570" height="24" rx="5" fill="#1f3345"/>
+      <rect x="336" y="241" width="570" height="24" rx="5" fill="#6fe0d0"/>
+      <text x="930" y="259" class="value">5/5</text>
+  </g>
+  <g>
+    <rect x="64" y="306" width="1072" height="142" rx="14" fill="#14283a" stroke="#294153"/>
+    <text x="88" y="337" class="metric">Total recorded cost</text>
+    <text x="906" y="337" class="scale">scale 0–$0.60</text>
+    <text x="88" y="375" class="arm">Baseline*</text>
+      <rect x="336" y="357" width="570" height="24" rx="5" fill="#1f3345"/>
+      <rect x="336" y="357" width="430" height="24" rx="5" fill="#e9af80"/>
+      <text x="930" y="375" class="value">$0.453</text>
+<text x="88" y="414" class="arm">PRism</text>
+      <rect x="336" y="396" width="570" height="24" rx="5" fill="#1f3345"/>
+      <rect x="336" y="396" width="515" height="24" rx="5" fill="#6fe0d0"/>
+      <text x="930" y="414" class="value">$0.542</text>
+  </g>
+  <g>
+    <rect x="64" y="461" width="1072" height="142" rx="14" fill="#14283a" stroke="#294153"/>
+    <text x="88" y="492" class="metric">Mean elapsed time</text>
+    <text x="906" y="492" class="scale">scale 0–30 s</text>
+    <text x="88" y="530" class="arm">Baseline*</text>
+      <rect x="336" y="512" width="570" height="24" rx="5" fill="#1f3345"/>
+      <rect x="336" y="512" width="358" height="24" rx="5" fill="#e9af80"/>
+      <text x="930" y="530" class="value">19 s</text>
+<text x="88" y="569" class="arm">PRism</text>
+      <rect x="336" y="551" width="570" height="24" rx="5" fill="#1f3345"/>
+      <rect x="336" y="551" width="473" height="24" rx="5" fill="#6fe0d0"/>
+      <text x="930" y="569" class="value">25 s</text>
+  </g>
+  <rect x="64" y="629" width="8" height="8" rx="2" fill="#e9af80"/>
+  <text x="82" y="637" class="foot">* Baseline had the legacy pr-gate skill available. In-sample graders. Descriptive only; no quality claim.</text>
+</svg>

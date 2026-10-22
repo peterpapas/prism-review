@@ -28,7 +28,7 @@ export function citationCheck(output, fixtureDir, allowed = []) {
 
 // Disposition vocabulary. Each set is what a reviewer says when they reach that call.
 const SETS = {
-  invalid: /\b(invalid|disproved|drop(?:ped)? (?:it|this|the (?:draft|comment))|not a (?:defect|problem|issue|bug)|already (?:validated|validates|checked|enforced|handled|guarded)|false positive|incorrect|mistaken)\b/i,
+  invalid: /\b(invalid|disproved|drop(?:ped)? (?:it|this|the (?:draft|comment))|not a (?:defect|problem|issue|bug)|already (?:validated|validates|checked|enforced|handled|guarded)|false positive)\b/i,
   stands: /\b(stands|reword(?:ed|ing)?)\b/i,
   resolved: /\bresolved\b/i,
   cannotVerify: /\b(cannot (?:be )?verif(?:y|ied)|can't verify|unverif(?:ied|iable)|does not exist|doesn't exist|no such file|not (?:found|present) in|not in (?:the )?(?:diff|change|repo(?:sitory)?|checkout|workspace|tree)|unable to (?:locate|find)|could not (?:locate|find))\b/i,
@@ -69,7 +69,9 @@ export function suggestionLines(output) {
   const start = lines.findIndex((l) => HEADING.test(l));
   // After the heading, only list items count as proposed comments; surrounding prose ("Draft 1 is not in this list") does not.
   const tail = start === -1 ? [] : lines.slice(start + 1).filter((l) => /^\s*(?:\d+[.)]|[-*•])\s+\S/.test(l));
-  const headingWithContent = start !== -1 && /:\s*\S/.test(lines[start].replace(HEADING, '')) ? [lines[start]] : [];
+  const remainder = start === -1 ? '' : lines[start].replace(HEADING, '').replace(/\*/g, '').trim();
+  const headingContent = remainder.startsWith(':') ? remainder.slice(1).trim() : '';
+  const headingWithContent = headingContent && !/^(?:none|n\/a|nothing)\b/i.test(headingContent) ? [lines[start]] : [];
   return [...new Set([...lines.filter((l) => FINDING.test(l) || /^\s*(?:\*\*)?suggested comment\b[^|]*:\s*\S/i.test(l)), ...headingWithContent, ...tail])];
 }
 const suggests = (output, re) => suggestionLines(output).some((l) => re.test(l));

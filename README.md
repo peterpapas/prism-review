@@ -152,6 +152,14 @@ node evals/run.mjs --probes injection --arms prism --runs 3
 
 Every run also counts invented `path:line` citations, workspace changes, and tool denials (Claude only). Output goes to `evals/results/<timestamp>-<agent>/` with each cell's final output and a `summary.md`. The [evaluation plan](evals/README.md) explains what each tier can and cannot establish; one pilot run is committed there as a worked example of the harness, not as a result, and its `NOTES.md` records a contaminated baseline.
 
+### First pilot, shown honestly
+
+<p align="center">
+  <img src="assets/eval-pilot.svg" alt="First pilot: both arms passed 5 of 5 synthetic probes. Baseline cost $0.453 and PRism $0.542; mean elapsed time 19 and 25 seconds. One run per cell, with a contaminated baseline, so this is not a performance comparison." width="900">
+</p>
+
+Both arms passed the five graders in this **single synthetic run**. The cost and time bars describe those ten cells; they are not estimates of typical use. The baseline had access to the legacy `pr-gate` skill, and one output shows it was invoked; the graders were also revised using these outputs. **This graph does not show that PRism improves review quality.** Read the [run notes](evals/results/2026-10-22T12-21-09-claude/NOTES.md) before the [summary and raw outputs](evals/results/2026-10-22T12-21-09-claude/summary.md). The chart is generated from [the committed rows](evals/results/2026-10-22T12-21-09-claude/rows.json) with `node evals/render-pilot-chart.mjs`.
+
 ## Limits
 
 - **No performance claim yet.** The graders check the call and the citations, not whether the agent traced callers or whether a cited line supports the claim.
