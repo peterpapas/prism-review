@@ -1,0 +1,1 @@
+The pinned review snapshot is stale: the head changed after review began, and the pinned base is unavailable in this checkout. I cannot offer ready-to-post comments or anchors until I recover the base and head and recheck the draft against the new diff.

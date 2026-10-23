@@ -7,7 +7,7 @@
 //   node evals/run.mjs --model sonnet --runs 3
 //   node evals/run.mjs --dry-run             # build workspaces and grade placeholders only
 //
-// Each cell: copy the fixture into a temp git repo (base = schema + test, head = the two new files),
+// Each cell: copy the fixture into a temp git repo (base, optional drafted head, final head),
 // run the agent read-only from that directory, save its final output, grade it, check the tree is
 // unchanged. Results land in evals/results/<timestamp>-<agent>/ with a summary.md.
 // Nothing here is a performance claim; it is a pilot you can read.
@@ -76,30 +76,56 @@ function sh(cmd, cmdArgs, cwd, extraEnv = {}) {
   return r;
 }
 
-/** Build a two-commit git repo from a fixture so "the PR" is HEAD~1...HEAD. Skill text, if any, is untracked. */
+/** Build a fixture repo. `base/` and optional `drafted/` provide real earlier snapshots. */
 function makeWorkspace(probe, arm) {
   // Outside any path that project-scoped hooks or plugins key on.
   const ws = mkdtempSync(join(tmpdir(), 'prism-eval-'));
   try {
     const src = join(root, 'evals', probe.fixture);
-    cpSync(src, ws, { recursive: true, filter: (p) => !/PR(_BODY_INJECTED)?\.md$/.test(p) });
-    cpSync(join(src, probe.prBody), join(ws, 'PR.md'));
+    const copySnapshot = (from) => {
+      for (const name of ['src', 'spec']) {
+        if (existsSync(join(from, name))) cpSync(join(from, name), join(ws, name), { recursive: true });
+      }
+    };
     const git = (...a) => {
       const r = sh('git', a, ws, { GIT_AUTHOR_NAME: 'fixture', GIT_AUTHOR_EMAIL: 'f@x', GIT_COMMITTER_NAME: 'fixture', GIT_COMMITTER_EMAIL: 'f@x', GIT_CONFIG_GLOBAL: '/dev/null' });
       if (r.status !== 0) throw new Error(`git ${a.join(' ')} failed: ${r.stderr}`);
       return r;
     };
     git('init', '-q');
-    git('add', 'src/orders/schema.ts', 'spec');
-    git('commit', '-q', '-m', 'base: schema and test');
-    git('add', '-A');
-    git('commit', '-q', '-m', 'head: add createOrder and route');
+    let baseSha;
+    let draftedSha;
+    if (existsSync(join(src, 'base'))) {
+      copySnapshot(join(src, 'base'));
+      git('add', '-A');
+      git('commit', '-q', '-m', 'base: pre-review code');
+      baseSha = git('rev-parse', 'HEAD').stdout.trim();
+      if (existsSync(join(src, 'drafted'))) {
+        copySnapshot(join(src, 'drafted'));
+        git('add', '-A');
+        git('commit', '-q', '-m', 'drafted: reviewed head');
+        draftedSha = git('rev-parse', 'HEAD').stdout.trim();
+      }
+      copySnapshot(src);
+      cpSync(join(src, probe.prBody), join(ws, 'PR.md'));
+      git('add', '-A');
+      git('commit', '-q', '-m', 'head: changed code');
+    } else {
+      copySnapshot(src);
+      cpSync(join(src, probe.prBody), join(ws, 'PR.md'));
+      git('add', 'src/orders/schema.ts', 'spec');
+      git('commit', '-q', '-m', 'base: schema and test');
+      baseSha = git('rev-parse', 'HEAD').stdout.trim();
+      git('add', '-A');
+      git('commit', '-q', '-m', 'head: add createOrder and route');
+    }
+    const headSha = git('rev-parse', 'HEAD').stdout.trim();
     if (arm === 'prism') {
       // Claude gets the text as an appended system prompt; Codex reads AGENTS.md from the cwd.
       // Neither is a skill install, and the two are not equivalent treatments. See evals/README.md.
       writeFileSync(join(ws, agent === 'codex' ? 'AGENTS.md' : '.prism-skill.md'), skillText);
     }
-    return ws;
+    return { dir: ws, baseSha, draftedSha, headSha };
   } catch (error) {
     rmSync(ws, { recursive: true, force: true });
     throw error;
@@ -164,10 +190,11 @@ for (let run = 1; run <= runs && !regrade; run += 1) {
     const order = (run + probes.indexOf(probe)) % 2 ? [...arms].reverse() : arms;
     for (const arm of order) {
       const tag = `${probe.id}.${arm}.r${run}`;
-      const ws = makeWorkspace(probe, arm);
+      const snapshot = makeWorkspace(probe, arm);
+      const ws = snapshot.dir;
       try {
         const expectedHarness = new Map(HARNESS_FILES.filter((path) => existsSync(join(ws, path))).map((path) => [path, readFileSync(join(ws, path))]));
-        const prompt = buildPrompt(probe);
+        const prompt = buildPrompt(probe, snapshot);
         let res;
         const t0 = Date.now();
         if (dry) res = { text: `[dry-run] ${tag}`, raw: '', stderr: '', denials: [], isError: false };

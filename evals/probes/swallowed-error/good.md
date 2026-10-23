@@ -1,0 +1,1 @@
+Draft 1 src/orders/create.ts:5 — Stands. The catch at src/orders/create.ts:5 returns null for every insert failure, including database outage. Recover only a known duplicate-key error and rethrow other errors so callers can distinguish failure from an existing order. Proof: Supported.

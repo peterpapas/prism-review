@@ -1,0 +1,1 @@
+Draft 1 spec/orders.fixture.ts:5 — Invalid. The happy-path test stubs insertOne at spec/orders.fixture.ts:6 and makes a single sequential call at spec/orders.fixture.ts:8. It does not execute concurrent persistence; a parallel test against the real unique constraint is still needed. The race remains Supported, not proven by this test.

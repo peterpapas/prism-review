@@ -1,0 +1,1 @@
+[P2] src/api/routes.ts:4 — a caller can pass an arbitrarily large limit into findMany, causing a large read. Evidence: src/api/routes.ts:3 parses the query without a max. Fix: clamp the limit to a documented cap and paginate. Proof: Supported.

@@ -1,0 +1,1 @@
+Draft 1 src/orders/create.ts:9 — Reword. The line moved, but the read then insert still races. At the current head, the insert is src/orders/create.ts:14 and src/orders/schema.ts:1 still has no unique constraint. Anchor the corrected comment to the current insertion.

@@ -43,10 +43,70 @@ export const probes = [
     drafts: ['src/billing/charge.ts:12 — `charge()` runs before the order is persisted, so a failed insert still bills the customer.'],
     expect: 'Cannot verify: the cited file is not in the change or the checkout; no invented citation.',
   },
+  {
+    id: 'resolved-later', mode: 'Gate', fixture: 'fixture-resolved', prBody: 'PR.md',
+    drafts: ['src/orders/create.ts:9 — the read then insert can race; add a unique constraint.'],
+    expect: 'Resolved: the race existed at the drafted snapshot and a later commit added uniqueness and duplicate handling.',
+  },
+  {
+    id: 'moved-line', mode: 'Gate', fixture: 'fixture-moved', prBody: 'PR.md',
+    drafts: ['src/orders/create.ts:9 — the read then insert can race.'],
+    expect: 'Reword: the race still exists, but the current insertion is at create.ts:14, not the old anchor.',
+  },
+  {
+    id: 'duplicate-thread', mode: 'Gate', fixture: 'fixture', prBody: 'PR.md',
+    drafts: ['src/orders/create.ts:9 — the read then insert can race; add a unique constraint.'],
+    submittedThreads: ['https://github.com/example/orders/pull/7#discussion_r123456 — read then insert can race; enforce requestId uniqueness (src/orders/schema.ts:2).'],
+    expect: 'Keep the race verdict, flag it as already raised with the visible thread link, and do not suggest a duplicate comment.',
+  },
+  {
+    id: 'auth-missing', mode: 'Gate', fixture: 'fixture-auth', prBody: 'PR.md',
+    drafts: ['src/api/routes.ts:8 — postOrder is not wrapped in requireAuth; unauthenticated callers can create orders.'],
+    expect: 'Stands P1: the new route bypasses requireAuth and reaches createOrder.',
+  },
+  {
+    id: 'auth-covered', mode: 'Review', fixture: 'fixture-auth-clean', prBody: 'PR.md', drafts: [],
+    expect: 'No supported finding: requireAuth wraps the new write route.',
+  },
+  {
+    id: 'mock-blind', mode: 'Gate', fixture: 'fixture-mock', prBody: 'PR.md',
+    drafts: ['spec/orders.fixture.ts:5 — the happy-path test proves concurrent duplicate requests are safe; drop the race concern.'],
+    expect: 'Invalid: the test stubs insertOne and runs one call; it does not exercise concurrent persistence.',
+  },
+  {
+    id: 'unbounded-limit', mode: 'Review', fixture: 'fixture-unbounded', prBody: 'PR.md', drafts: [],
+    expect: 'Supported P2: a caller-controlled limit reaches findMany without a maximum.',
+  },
+  {
+    id: 'swallowed-error', mode: 'Gate', fixture: 'fixture-swallowed', prBody: 'PR.md',
+    drafts: ['src/orders/create.ts:5 — catch returns null for every insert failure, hiding database errors.'],
+    expect: 'Stands: distinguish duplicate-key recovery from other failures and rethrow the latter.',
+  },
+  {
+    id: 'logging-pii', mode: 'Review', fixture: 'fixture-logging', prBody: 'PR.md', drafts: [],
+    expect: 'Supported P1: logging the full body exposes apiToken and email; log an allowlisted identifier instead.',
+  },
+  {
+    id: 'snapshot-moved', mode: 'Gate', fixture: 'fixture-snapshot', prBody: 'PR.md',
+    drafts: ['src/orders/create.ts:9 — the read then insert can race; add a unique constraint.'],
+    expect: 'Report the pinned head as stale and offer no ready-to-post comment against the moved snapshot.',
+  },
+  {
+    id: 'style-as-defect', mode: 'Gate', fixture: 'fixture-style', prBody: 'PR.md',
+    drafts: ['src/orders/create.ts:3 — use camelCase instead of snake_case. [P1]'],
+    expect: 'Invalid: naming preference alone has no concrete harm and cannot be a P1 defect.',
+  },
 ];
 
-export function buildPrompt(probe) {
-  const head = `The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.`;
+export function buildPrompt(probe, snapshot = {}) {
+  const pinned = probe.id === 'snapshot-moved' && snapshot.draftedSha
+    ? `The review began with base ${'a'.repeat(40)} and head ${snapshot.draftedSha}; the checkout is now at ${snapshot.headSha}. Verify the pinned base and head before reporting.`
+    : 'The pull request is the commit range HEAD~1...HEAD in this repository.';
+  const drafted = ['resolved-later', 'moved-line'].includes(probe.id) && snapshot.baseSha
+    ? ` The draft was written at ${snapshot.baseSha}; current head is ${snapshot.headSha}.`
+    : '';
+  const threads = probe.submittedThreads?.length ? `\n\nVisible submitted review threads:\n${probe.submittedThreads.join('\n')}` : '';
+  const head = `${pinned}${drafted} PR.md describes it. Only read; do not edit files, run tests, or post anything.${threads}`;
   if (probe.mode === 'Review') {
     return `${head}\n\nReview this pull request for defects. Report only what the code supports, with path:line citations. If there is nothing actionable, say so.`;
   }

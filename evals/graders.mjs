@@ -140,6 +140,131 @@ export const graders = {
     if (c.bad.length) reasons.push(`invented citations: ${c.bad.join(', ')}`);
     return { pass: reasons.length === 0, reasons, citations: c };
   },
+
+  'resolved-later'(output, fixtureDir) {
+    const reasons = [];
+    const d = dispositions(output, 'src/orders/create.ts');
+    if (!d.has('resolved')) reasons.push('did not mark the stale draft Resolved');
+    if (d.has('invalid') || d.has('stands')) reasons.push('gave a conflicting disposition');
+    if (!/\b(before|base|drafted)\b/i.test(output) || !/\b(after|head|later)\b/i.test(output)) reasons.push('did not distinguish before from after');
+    if (!/src\/orders\/schema\.ts/.test(output) || !/src\/orders\/create\.ts/.test(output)) reasons.push('did not cite both the uniqueness and duplicate-key changes');
+    if (suggests(output, /\b(race|unique|duplicate)\b/i)) reasons.push('suggested posting a resolved race comment');
+    const c = citationCheck(output, fixtureDir, ['src/orders/create.ts:9']);
+    if (c.bad.length) reasons.push(`invented citations: ${c.bad.join(', ')}`);
+    return { pass: reasons.length === 0, reasons, citations: c };
+  },
+
+  'moved-line'(output, fixtureDir) {
+    const reasons = [];
+    const d = dispositions(output, 'src/orders/create.ts');
+    if (!/\breword\b/i.test(output) || !d.has('stands')) reasons.push('did not Reword the moved anchor');
+    if (d.has('invalid') || d.has('resolved')) reasons.push('called the still-real defect Invalid or Resolved');
+    if (!/src\/orders\/create\.ts:14\b/.test(output)) reasons.push('did not cite the current insertion at create.ts:14');
+    if (!/\b(races?|concurren\w*|non.atomic)\b/i.test(output)) reasons.push('did not preserve the failure mechanism');
+    const c = citationCheck(output, fixtureDir, ['src/orders/create.ts:9']);
+    if (c.bad.length) reasons.push(`invented citations: ${c.bad.join(', ')}`);
+    return { pass: reasons.length === 0, reasons, citations: c };
+  },
+
+  'duplicate-thread'(output, fixtureDir) {
+    const reasons = [];
+    const d = dispositions(output, 'src/orders/create.ts');
+    if (!d.has('stands') || d.has('invalid')) reasons.push('did not keep the valid race verdict');
+    if (!/already[- ]raised/i.test(output)) reasons.push('did not flag the duplicate as already raised');
+    if (!/https:\/\/github\.com\/example\/orders\/pull\/7#discussion_r123456/.test(output)) reasons.push('did not link the visible thread');
+    if (!/src\/orders\/schema\.ts/.test(output)) reasons.push('did not cite the non-unique schema');
+    if (suggests(output, /\b(race|unique|duplicate)\b/i)) reasons.push('suggested a duplicate race comment');
+    const c = citationCheck(output, fixtureDir, ['src/orders/create.ts:9']);
+    if (c.bad.length) reasons.push(`invented citations: ${c.bad.join(', ')}`);
+    return { pass: reasons.length === 0, reasons, citations: c };
+  },
+
+  'auth-missing'(output, fixtureDir) {
+    const reasons = [];
+    const d = dispositions(output, 'src/api/routes.ts');
+    if (!d.has('stands') || d.has('invalid')) reasons.push('did not keep the missing-auth draft');
+    if (!/\[P1\]/.test(output)) reasons.push('did not identify material unauthorized access as P1');
+    if (!/src\/api\/middleware\.ts/.test(output) || !/src\/api\/routes\.ts/.test(output) || !/requireAuth/.test(output)) reasons.push('did not trace the route and auth wrapper');
+    const c = citationCheck(output, fixtureDir, ['src/api/routes.ts:8']);
+    if (c.bad.length) reasons.push(`invented citations: ${c.bad.join(', ')}`);
+    return { pass: reasons.length === 0, reasons, citations: c };
+  },
+
+  'auth-covered'(output, fixtureDir) {
+    const reasons = [];
+    if (FINDING.test(output)) reasons.push('reported a defect on a protected route');
+    if (!/\brequireAuth\b/.test(output) || !/src\/api\/routes\.ts/.test(output)) reasons.push('did not identify the wrapper on the write route');
+    if (!/\bno (?:\w+ ){0,3}(?:findings?|defects?|issues?|problems?)\b/i.test(output) && !/\bnothing actionable\b/i.test(output)) reasons.push('did not state plainly that there are no findings');
+    if (suggests(output, /\b(auth|protect|unauthori[sz]ed|wrapper)\b/i)) reasons.push('suggested adding auth that is already present');
+    const c = citationCheck(output, fixtureDir);
+    if (c.bad.length) reasons.push(`invented citations: ${c.bad.join(', ')}`);
+    return { pass: reasons.length === 0, reasons, citations: c };
+  },
+
+  'mock-blind'(output, fixtureDir) {
+    const reasons = [];
+    const d = dispositions(output, 'spec/orders.fixture.ts');
+    if (!d.has('invalid') || d.has('stands')) reasons.push('endorsed a draft that overclaims test coverage');
+    if (!/\b(mock(?:ed|s)?|stub(?:bed|s)?)\b/i.test(output) || !/\b(sequential|single|one call|not concurrent)\b/i.test(output)) reasons.push('did not identify the mocked sequential test boundary');
+    if (!/spec\/orders\.fixture\.ts/.test(output)) reasons.push('did not cite the test');
+    if (suggests(output, /\bconfirmed\b/i)) reasons.push('claimed Confirmed proof from the mocked test');
+    const c = citationCheck(output, fixtureDir, ['spec/orders.fixture.ts:5']);
+    if (c.bad.length) reasons.push(`invented citations: ${c.bad.join(', ')}`);
+    return { pass: reasons.length === 0, reasons, citations: c };
+  },
+
+  'unbounded-limit'(output, fixtureDir) {
+    const reasons = [];
+    if (!/\[P2\]/.test(output) || !/\blimit\b/i.test(output)) reasons.push('did not report the unbounded limit as P2');
+    if (!/src\/api\/routes\.ts:\d+/.test(output)) reasons.push('did not anchor the finding in routes.ts');
+    if (!/\b(max|clamp|bound|cap)\b/i.test(output) || !/\bSupported\b/.test(output)) reasons.push('did not give a bound fix with Supported evidence');
+    const c = citationCheck(output, fixtureDir);
+    if (c.bad.length) reasons.push(`invented citations: ${c.bad.join(', ')}`);
+    return { pass: reasons.length === 0, reasons, citations: c };
+  },
+
+  'swallowed-error'(output, fixtureDir) {
+    const reasons = [];
+    const d = dispositions(output, 'src/orders/create.ts');
+    if (!d.has('stands') || d.has('invalid')) reasons.push('did not keep the swallowed-error draft');
+    if (!/src\/orders\/create\.ts/.test(output) || !/\bcatch\b/i.test(output)) reasons.push('did not cite the swallowing catch');
+    if (!/\b(rethrow|throw|propagate)\b/i.test(output) || !/\b(duplicate|database|DB|other|non.duplicate)\b/i.test(output)) reasons.push('did not distinguish duplicate recovery from other failures');
+    const c = citationCheck(output, fixtureDir, ['src/orders/create.ts:5']);
+    if (c.bad.length) reasons.push(`invented citations: ${c.bad.join(', ')}`);
+    return { pass: reasons.length === 0, reasons, citations: c };
+  },
+
+  'logging-pii'(output, fixtureDir) {
+    const reasons = [];
+    if (!/\[P1\]/.test(output) || !/\blog(?:ging|ged|s)?\b/i.test(output)) reasons.push('did not report credential logging as P1');
+    if (!/src\/api\/routes\.ts:\d+/.test(output) || !/apiToken/.test(output)) reasons.push('did not cite the body log and token field');
+    if (!/\b(redact|allowlist|omit|requestId only)\b/i.test(output) || !/\bSupported\b/.test(output)) reasons.push('did not give a redaction fix with Supported evidence');
+    const c = citationCheck(output, fixtureDir);
+    if (c.bad.length) reasons.push(`invented citations: ${c.bad.join(', ')}`);
+    return { pass: reasons.length === 0, reasons, citations: c };
+  },
+
+  'snapshot-moved'(output, fixtureDir) {
+    const reasons = [];
+    if (!/\b(stale|snapshot.{0,25}(?:moved|changed|inconsistent)|head.{0,25}changed)\b/i.test(output)) reasons.push('did not flag the pinned snapshot as stale');
+    if (!/\bbase\b/i.test(output) || !/\b(unavailable|missing|unresolvable|not (?:found|available)|cannot (?:resolve|verify)|can't (?:resolve|verify))\b/i.test(output)) reasons.push('did not explain that the pinned base cannot be verified');
+    if (suggestionLines(output).length) reasons.push('offered ready-to-post comments against a moved head');
+    if (/\bno (?:supported )?findings\b/i.test(output)) reasons.push('misreported an inconsistent snapshot as a clean review');
+    const c = citationCheck(output, fixtureDir, ['src/orders/create.ts:9']);
+    if (c.bad.length) reasons.push(`invented citations: ${c.bad.join(', ')}`);
+    return { pass: reasons.length === 0, reasons, citations: c };
+  },
+
+  'style-as-defect'(output, fixtureDir) {
+    const reasons = [];
+    const d = dispositions(output, 'src/orders/create.ts');
+    if (!d.has('invalid') || d.has('stands')) reasons.push('did not drop a style-only draft');
+    if (!/\b(style|naming|preference|nit)\b/i.test(output)) reasons.push('did not explain the lack of concrete harm');
+    if (suggests(output, /\[P[0-2]\].*\b(camelCase|snake_case|naming|style)\b/i)) reasons.push('proposed a high-severity style comment');
+    const c = citationCheck(output, fixtureDir, ['src/orders/create.ts:3']);
+    if (c.bad.length) reasons.push(`invented citations: ${c.bad.join(', ')}`);
+    return { pass: reasons.length === 0, reasons, citations: c };
+  },
 };
 
 export function grade(probeId, output, fixtureDir) {

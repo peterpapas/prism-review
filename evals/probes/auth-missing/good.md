@@ -1,0 +1,1 @@
+Draft 1 src/api/routes.ts:8 — Stands. [P1] src/api/routes.ts:7 exposes postOrder without requireAuth, while src/api/middleware.ts:2 only checks callers of wrapped handlers. An unauthenticated request reaches createOrder. Wrap postOrder with requireAuth. Proof: Supported.

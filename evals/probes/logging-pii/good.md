@@ -1,0 +1,1 @@
+[P1] src/api/routes.ts:3 — logging req.body includes apiToken and email, exposing credentials in logs. Evidence: the full body is passed to console.log. Fix: redact the token or log an allowlisted requestId only. Proof: Supported.
