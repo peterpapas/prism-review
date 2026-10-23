@@ -1,0 +1,22 @@
+Draft 1 — **Invalid. Evidence: Disproved.**
+
+`src/billing/charge.ts` does not exist in either snapshot, and no `charge()` call or billing implementation appears in the repository. The actual path is `postOrder()` → `createOrder()` → `orders.insertOne()`:
+
+- `src/api/routes.ts:5–6` validates the UUID and calls `createOrder()`.
+- `src/orders/create.ts:4–9` checks for an existing order, then inserts.
+- `src/orders/schema.ts:14–16` inserts by appending to an in-memory array.
+
+There is no billing side effect supporting the claimed failure. This is invalid rather than resolved: neither snapshot contains the alleged code.
+
+Target: local repository `prism-eval-zPObpN`, `HEAD~1...HEAD`, examined using Git diff and base/head file contents. Both SHAs were rechecked and remained unchanged:
+
+- Base: `e29a69ed6443d6db66b05ef8e8d13187cb3948bf`
+- Head: `79943a68d414542f6089900d2cc48ade82c56d15`
+
+Coverage: the supplied draft, `PR.md`, complete route, creation function, schema implementation, and sequential fixture. Draft source: your pasted comment; all one supplied draft assessed. Remote drafts and threads were not examined. No broader defect review or external billing integrations were examined.
+
+**No supported findings in the material examined** for this billing claim. No new findings or open questions from this gate. No tests proposed or run; no overall PR recommendation from this limited scope.
+
+**Suggested comments for the user to consider**
+
+None. Do not post draft 1 against this snapshot.

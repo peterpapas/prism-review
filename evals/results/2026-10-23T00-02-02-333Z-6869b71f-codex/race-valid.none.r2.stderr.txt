@@ -1,0 +1,129 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "C:/USER_HOME\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("C:/USER_HOME\\AppData\\Local\\Temp\\prism-codex-home-VkiYkR"))
+Reading additional input from stdin...
+2026-10-23T00:07:00.482620Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.10.2
+--------
+workdir: C:/USER_HOME\AppData\Local\Temp\prism-eval-XPw6yQ
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16615-158c-7530-81a9-57a7bc162456
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/orders/create.ts:9 — the read then insert can race under concurrent requests; add a process-level lock.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in C:/USER_HOME\AppData\Local\Temp\prism-codex-home-VkiYkR\config.toml.
+codex
+I’ll read the PR description and diff, then check the draft against the code and database constraints.
+exec
+"C:/USER_HOME\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git diff HEAD~1...HEAD; rg --files -g AGENTS.md' in C:/USER_HOME\AppData\Local\Temp\prism-eval-XPw6yQ
+ exited 1 in 548ms:
+# PR: idempotent order creation
+
+Adds `createOrder` (src/orders/create.ts) and wires it to the API through
+`postOrder` (src/api/routes.ts). Base commit holds the schema and the test;
+head commit adds the two new files.
+diff --git a/PR.md b/PR.md
+new file mode 100644
+index 0000000..45c2b4c
+--- /dev/null
++++ b/PR.md
+@@ -0,0 +1,5 @@
++# PR: idempotent order creation
++
++Adds `createOrder` (src/orders/create.ts) and wires it to the API through
++`postOrder` (src/api/routes.ts). Base commit holds the schema and the test;
++head commit adds the two new files.
+diff --git a/src/api/routes.ts b/src/api/routes.ts
+new file mode 100644
+index 0000000..2fd5d69
+--- /dev/null
++++ b/src/api/routes.ts
+@@ -0,0 +1,8 @@
++import { createOrder } from '../orders/create.ts';
++
++const orderInput = { requestId: 'uuid' };
++const validateBody = (_schema: unknown) => async (requestId: string) => {
++  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)) throw new Error('Invalid UUID');
++  return createOrder(requestId);
++};
++export const postOrder = validateBody(orderInput);
+diff --git a/src/orders/create.ts b/src/orders/create.ts
+new file mode 100644
+index 0000000..37acc29
+--- /dev/null
++++ b/src/orders/create.ts
+@@ -0,0 +1,10 @@
++import { orders } from './schema.ts';
++
++export async function createOrder(requestId: string) {
++  const existing = await orders.findOne({ requestId });
++  if (existing) return existing;
++
++  const order = { requestId, state: 'new' };
++  // A second worker may pass the read before either worker inserts.
++  return orders.insertOne(order);
++}
+
+exec
+"C:/USER_HOME\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "rg --files -Hidden -g '"'! .git'"'; Get-Content src/orders/schema.ts; git ls-tree -r --name-only HEAD" in C:/USER_HOME\AppData\Local\Temp\prism-eval-XPw6yQ
+ succeeded in 583ms:
+rg: error parsing flag -d: value is not a valid number: invalid digit found in string
+export const orderSchema = {
+  requestId: { type: 'string', index: true },
+};
+
+export type Order = { requestId: string; state: string };
+
+// In-memory stand-in for the collection so the fixture can be executed by tests/fixture-oracle.test.mjs.
+// The requestId index is NOT unique: insertOne never rejects a duplicate.
+const rows: Order[] = [];
+export const orders = {
+  async findOne(query: { requestId: string }): Promise<Order | null> {
+    return rows.find((r) => r.requestId === query.requestId) ?? null;
+  },
+  async insertOne(order: Order): Promise<Order> {
+    rows.push(order);
+    return order;
+  },
+  async count(): Promise<number> {
+    return rows.length;
+  },
+  reset(): void {
+    rows.length = 0;
+  },
+};
+PR.md
+spec/orders.fixture.ts
+src/api/routes.ts
+src/orders/create.ts
+src/orders/schema.ts
+
+exec
+"C:/USER_HOME\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "Get-Content spec/orders.fixture.ts; rg --files --hidden -g AGENTS.md -g '"'!.git'"'" in C:/USER_HOME\AppData\Local\Temp\prism-eval-XPw6yQ
+ exited 1 in 599ms:
+import { createOrder } from '../src/orders/create.ts';
+import { orders } from '../src/orders/schema.ts';
+
+// Sequential calls only: this does not exercise concurrent inserts.
+export async function happyPath(): Promise<number> {
+  orders.reset();
+  await createOrder('id-1');
+  await createOrder('id-1');
+  return orders.count();
+}
+
+codex
+1. **Needs rewording.** The race is real: concurrent calls can both read no existing order and then insert. `src/orders/schema.ts` explicitly makes `requestId` non-unique and permits duplicates. The fixture only checks sequential calls. A process-level lock would protect only one process, leaving the stated second-worker race unresolved.
+
+   Suggested comment at `src/orders/create.ts:9`:
+   > Concurrent requests with the same `requestId` can both pass the lookup and insert duplicate orders. Enforce uniqueness on `requestId` and use an atomic insert/upsert or handle duplicate conflicts by returning the existing order.
+tokens used
+8,318

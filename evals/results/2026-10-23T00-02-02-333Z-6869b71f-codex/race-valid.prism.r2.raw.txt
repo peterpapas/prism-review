@@ -1,0 +1,18 @@
+Draft 1 — **Needs rewording.** The race is supported, but a process-level lock only protects requests sharing that process. The corrective action should enforce idempotency atomically at the storage boundary.
+
+[P2] `src/orders/create.ts:9` — Concurrent requests with the same request ID can create duplicate orders. **Evidence:** both calls can receive `null` from the read at line 4 before either inserts. `src/orders/schema.ts` has a nonunique index, and `insertOne` unconditionally appends. The API’s UUID validation permits repeated valid IDs. **Fix:** use an atomic create-if-absent operation; for persistent storage, enforce uniqueness and return the existing order on conflict. **Proof: Supported**, traced but not executed.
+
+The existing fixture calls `createOrder` sequentially, so it does not cover this interleaving.
+
+Target and snapshot: local repository `C:/USER_HOME\AppData\Local\Temp\prism-eval-5VTgxF`, `HEAD~1...HEAD`, obtained with `git diff`.
+
+- Base: `ba1a115688eef2a7989f6039906218489b5c1f92`
+- Head: `2cc807d8cd0f49f11bacdd8299784376a469e297`
+
+Both SHAs were re-read and remained unchanged. Reviewed `PR.md`, both new source files, and the schema and fixture at base and head. Source: your one pasted draft, fully assessed. No remote or PR number was available; external threads and deployment details were not examined. No additional findings or blocking open questions. The referenced example file was absent.
+
+Proposed test, **not run**: reset storage, concurrently invoke `postOrder` twice with the same valid UUID, and assert one stored order and the same returned order. No overall PR recommendation: this was a focused draft gate.
+
+**Suggested comments for the user to consider**
+
+1. `src/orders/create.ts:9` (RIGHT side, added line): “Concurrent requests with the same request ID can both read no existing order and then insert. The current index is nonunique and `insertOne` accepts duplicates, so this breaks idempotent creation. Please enforce atomic create-if-absent semantics at the storage boundary; a process-level lock would not cover multiple workers.”

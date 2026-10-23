@@ -1,0 +1,26 @@
+# clean-review.prism.r3
+
+prompt:
+
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Review this pull request for defects. Report only what the code supports, with path:line citations. If there is nothing actionable, say so.
+
+---
+
+**No supported findings in the material examined.**
+
+Reviewed local `HEAD~1...HEAD` in `C:/USER_HOME\AppData\Local\Temp\prism-eval-GrLCdX`, using `git diff`:
+
+- Base: `e41e6cfedc12780a42b0f3b261780bcdd8a2a489`
+- Head: `0ff3b43947fc7faa5880b3bf2701ab4d65cb0b02`
+
+Both SHAs were rechecked and remained unchanged.
+
+Read all three changed files, the complete order collection implementation, and the concurrency fixture. The unique-key check in `src/orders/schema.ts:19` prevents concurrent duplicate inserts, and `src/orders/create.ts:13` retrieves the persisted order after that error. The API validates UUID input at `src/api/routes.ts:5`.
+
+Coverage is limited to the supplied repository: no external consumers or production database implementation were available. The fixture at `spec/orders.fixture.ts:5` checks the stored count but does not assert returned orders. A useful additional test would submit concurrent calls with one valid UUID and assert both return the same order and exactly one row exists. No tests were run, files edited, or comments posted. No drafts were supplied.
+
+**Suggested comments for the user to consider**
+
+None.

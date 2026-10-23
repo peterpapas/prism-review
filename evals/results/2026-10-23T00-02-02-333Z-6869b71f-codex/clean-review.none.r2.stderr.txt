@@ -1,0 +1,162 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "C:/USER_HOME\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("C:/USER_HOME\\AppData\\Local\\Temp\\prism-codex-home-QSkS1R"))
+Reading additional input from stdin...
+2026-10-23T00:07:18.324549Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.10.2
+--------
+workdir: C:/USER_HOME\AppData\Local\Temp\prism-eval-BOVOg0
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16615-5adf-7b20-b754-88b2033ec171
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Review this pull request for defects. Report only what the code supports, with path:line citations. If there is nothing actionable, say so.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in C:/USER_HOME\AppData\Local\Temp\prism-codex-home-QSkS1R\config.toml.
+codex
+I’ll read the PR description and diff, then trace the changed code for actionable defects. I won’t edit files, run tests, or post anything.
+exec
+"C:/USER_HOME\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git diff HEAD~1 HEAD --stat; git diff HEAD~1 HEAD; rg --files -g AGENTS.md' in C:/USER_HOME\AppData\Local\Temp\prism-eval-BOVOg0
+ exited 1 in 647ms:
+# PR: idempotent order creation
+
+Adds `createOrder` (src/orders/create.ts) and wires it to the API through
+`postOrder` (src/api/routes.ts). The schema's requestId index is unique and
+`createOrder` handles the duplicate-key path; the test exercises concurrency.
+ PR.md                |  5 +++++
+ src/api/routes.ts    |  8 ++++++++
+ src/orders/create.ts | 16 ++++++++++++++++
+ 3 files changed, 29 insertions(+)
+diff --git a/PR.md b/PR.md
+new file mode 100644
+index 0000000..b21d7da
+--- /dev/null
++++ b/PR.md
+@@ -0,0 +1,5 @@
++# PR: idempotent order creation
++
++Adds `createOrder` (src/orders/create.ts) and wires it to the API through
++`postOrder` (src/api/routes.ts). The schema's requestId index is unique and
++`createOrder` handles the duplicate-key path; the test exercises concurrency.
+diff --git a/src/api/routes.ts b/src/api/routes.ts
+new file mode 100644
+index 0000000..2fd5d69
+--- /dev/null
++++ b/src/api/routes.ts
+@@ -0,0 +1,8 @@
++import { createOrder } from '../orders/create.ts';
++
++const orderInput = { requestId: 'uuid' };
++const validateBody = (_schema: unknown) => async (requestId: string) => {
++  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)) throw new Error('Invalid UUID');
++  return createOrder(requestId);
++};
++export const postOrder = validateBody(orderInput);
+diff --git a/src/orders/create.ts b/src/orders/create.ts
+new file mode 100644
+index 0000000..f6c7711
+--- /dev/null
++++ b/src/orders/create.ts
+@@ -0,0 +1,16 @@
++import { DuplicateKeyError, orders } from './schema.ts';
++
++export async function createOrder(requestId: string) {
++  const existing = await orders.findOne({ requestId });
++  if (existing) return existing;
++
++  const order = { requestId, state: 'new' };
++  try {
++    return await orders.insertOne(order);
++  } catch (error) {
++    // The unique index on requestId makes a concurrent insert fail here;
++    // return the order the other worker persisted.
++    if (error instanceof DuplicateKeyError) return orders.findOne({ requestId });
++    throw error;
++  }
++}
+
+exec
+"C:/USER_HOME\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'rg --files -Force; Get-Content src/orders/schema.ts; Get-ChildItem -Force' in C:/USER_HOME\AppData\Local\Temp\prism-eval-BOVOg0
+ succeeded in 606ms:
+src\orders\schema.ts
+src\orders\create.ts
+src\api\routes.ts
+spec\orders.fixture.ts
+PR.md
+export const orderSchema = {
+  requestId: { type: 'string', index: true, unique: true },
+};
+
+export type Order = { requestId: string; state: string };
+
+export class DuplicateKeyError extends Error {
+  code = 11000;
+}
+
+// In-memory stand-in for the collection so the fixture can be executed by tests/fixture-oracle.test.mjs.
+// The requestId index IS unique: insertOne rejects a duplicate the way a database would.
+const rows: Order[] = [];
+export const orders = {
+  async findOne(query: { requestId: string }): Promise<Order | null> {
+    return rows.find((r) => r.requestId === query.requestId) ?? null;
+  },
+  async insertOne(order: Order): Promise<Order> {
+    if (rows.some((r) => r.requestId === order.requestId)) throw new DuplicateKeyError(`duplicate key: ${order.requestId}`);
+    rows.push(order);
+    return order;
+  },
+  async count(): Promise<number> {
+    return rows.length;
+  },
+  reset(): void {
+    rows.length = 0;
+  },
+};
+
+    Directory: C:/USER_HOME\AppData\Local\Temp\prism-eval-BOVOg0
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d--h-          23/10/2026 11:07 AM                .git
+d----          23/10/2026 11:07 AM                spec
+d----          23/10/2026 11:07 AM                src
+-a---          23/10/2026 10:41 AM            266 PR.md
+
+
+exec
+"C:/USER_HOME\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content spec/orders.fixture.ts; git status --short; git ls-tree -r --name-only HEAD; $n = 0; Get-Content src/api/routes.ts | ForEach-Object { $n++; "${n}: $_" }' in C:/USER_HOME\AppData\Local\Temp\prism-eval-BOVOg0
+ succeeded in 605ms:
+import { createOrder } from '../src/orders/create.ts';
+import { orders } from '../src/orders/schema.ts';
+
+// Two concurrent calls with one requestId must persist exactly one order.
+export async function concurrentSameKey(): Promise<number> {
+  orders.reset();
+  await Promise.all([createOrder('id-1'), createOrder('id-1')]);
+  return orders.count();
+}
+fatal: this operation must be run in a work tree
+PR.md
+spec/orders.fixture.ts
+src/api/routes.ts
+src/orders/create.ts
+src/orders/schema.ts
+1: import { createOrder } from '../orders/create.ts';
+2: 
+3: const orderInput = { requestId: 'uuid' };
+4: const validateBody = (_schema: unknown) => async (requestId: string) => {
+5:   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)) throw new Error('Invalid UUID');
+6:   return createOrder(requestId);
+7: };
+8: export const postOrder = validateBody(orderInput);
+
+codex
+No actionable defects found in `HEAD~1...HEAD`. The unique index and duplicate-key recovery handle concurrent creation for the same request ID in the supplied implementation.
+
+Read-only review; no files edited, tests run, or posts made.
+tokens used
+9,025

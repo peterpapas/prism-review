@@ -1,0 +1,1 @@
+1. **Invalid — do not post.** `src/billing/charge.ts` does not exist in either commit, and neither contains references to `charge` or billing. The added [`createOrder`](C:/USER_HOME/AppData/Local/Temp/prism-eval-u5efAm/src/orders/create.ts:3) only checks for an existing order and inserts one; there is no billing call supporting the claimed failure scenario.
