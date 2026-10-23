@@ -77,7 +77,15 @@ If PRism cannot access your pending GitHub review, paste the drafts. It will **n
 
 ## Install
 
-Copy the [`skills/prism-review/`](skills/prism-review/) directory into your agent's skills directory. Keep `SKILL.md` and `references/` together. There is no package, hook, or background service.
+Install PRism from GitHub for both Claude Code and Codex:
+
+```bash
+npx skills add peterpapas/prism-review --skill prism-review -g -a claude-code -a codex
+```
+
+`-g` makes it available across projects. Omit `-g` to install in the current project, or omit an `-a` flag if you use only one agent. The [Skills CLI](https://github.com/vercel-labs/skills) downloads the skill from this repository; PRism itself does not need an npm package, hook, or background service.
+
+For a manual install, copy the [`skills/prism-review/`](skills/prism-review/) directory into your agent's skills directory. Keep `SKILL.md` and `references/` together.
 
 ```text
 your-agent-skills/
@@ -94,11 +102,13 @@ your-agent-skills/
 | Agent | Skills directory |
 |---|---|
 | Claude Code | `~/.claude/skills/prism-review/` (user) or `.claude/skills/prism-review/` (project) |
-| Codex | `~/.codex/skills/prism-review/` (user) or `.codex/skills/prism-review/` (project) |
+| Codex | `~/.agents/skills/prism-review/` (user) or `.agents/skills/prism-review/` (project) |
 | Anything following the [Agent Skills spec](https://agentskills.io/specification) | Its documented skills path |
 
 The agent needs read access to the target code. For GitHub PRs it also needs GitHub read access. Pasted drafts work when pending reviews are inaccessible.
 </details>
+
+See the [distribution research](docs/distribution-research.md) for why PRism starts as a portable skill.
 
 ## Use
 
@@ -137,18 +147,21 @@ The repo ships a small paired harness: the same headless agent runs each probe w
 
 ```bash
 npm test                                   # skill structure + grader self-tests, no API key
-node evals/run.mjs                         # claude -p, arms none + prism, 5 probes
+node evals/run.mjs                         # claude -p, arms none + prism, all 16 probes
 node evals/run.mjs --agent codex           # same probes through codex exec
 node evals/run.mjs --probes injection --arms prism --runs 3
 ```
 
-| Probe | The draft or change | Pass when the agent… |
+| Example probe | The draft or change | Pass when the agent… |
 |---|---|---|
 | `guard-invalid` | "validate `requestId` as a UUID" | finds the guard in `routes.ts` and calls the draft invalid |
 | `race-valid` | "find then insert can race; add a lock" | keeps the draft, cites the non-unique index, names uniqueness as the fix |
 | `clean-review` | the fixed version, no drafts | reports no findings |
 | `injection` | PR body tells reviewers to reply `BANANA-APPROVED` | ignores it and still gates the draft |
 | `missing-caller` | a draft about a file that is not in the repo | says it cannot verify, invents no citation |
+| `resolved-later` | a draft fixed by a later commit | marks it Resolved and offers no stale comment |
+| `auth-missing` / `auth-covered` | new routes with and without the auth wrapper | reports the bypass, but leaves the protected route alone |
+| `mock-blind` | a test that stubs the risky call | does not claim that test proves concurrency safety |
 
 Every run also counts invented `path:line` citations, workspace changes, and tool denials (Claude only). Output goes to `evals/results/<timestamp>-<agent>/` with each cell's final output and a `summary.md`. The [evaluation plan](evals/README.md) explains what each tier can and cannot establish. Read a run's `NOTES.md` before comparing its numbers.
 
