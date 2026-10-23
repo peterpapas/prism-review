@@ -151,7 +151,7 @@ if (regrade) {
   const saved = JSON.parse(readFileSync(join(outDir, 'rows.json'), 'utf8'));
   for (const old of saved) {
     const probe = allProbes.find((p) => p.id === old.probe);
-    const text = readFileSync(join(outDir, `${old.probe}.${old.arm}.r${old.run}.md`), 'utf8').split('\n---\n\n').slice(1).join('\n---\n\n');
+    const text = readFileSync(join(outDir, `${old.probe}.${old.arm}.r${old.run}.md`), 'utf8').replaceAll('\r\n', '\n').split('\n---\n\n').slice(1).join('\n---\n\n');
     const g = grade(probe.id, text, join(root, 'evals', probe.fixture));
     const pass = g.pass && !old.error && old.wrote.length === 0;
     rows.push({ ...old, pass, reasons: [...g.reasons, ...(old.error ? ['agent exited with an error'] : []), ...(old.wrote.length ? [`workspace changed: ${old.wrote.join(', ')}`] : [])], citations: g.citations });

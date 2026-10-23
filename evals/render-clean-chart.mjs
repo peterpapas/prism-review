@@ -26,7 +26,7 @@ const tokens = (arm) => arm.rows.reduce((sum, row) => sum + row.tokens, 0);
 const meanSeconds = (arm) => arm.rows.reduce((sum, row) => sum + row.seconds, 0) / arm.rows.length;
 const incidental = (arm) => arm.rows.filter((row) => {
   if (!['guard-invalid', 'missing-caller'].includes(row.probe)) return false;
-  const text = readFileSync(join(root, run, `${row.probe}.${row.arm}.r${row.run}.md`), 'utf8').split('\n---\n\n').slice(1).join('\n---\n\n');
+  const text = readFileSync(join(root, run, `${row.probe}.${row.arm}.r${row.run}.md`), 'utf8').replaceAll('\r\n', '\n').split('\n---\n\n').slice(1).join('\n---\n\n');
   return /\[P[0-3]\]/.test(text) && /src\/orders\/create\.ts:9/.test(text) && /concurrent|duplicate orders/i.test(text);
 }).length;
 const esc = (value) => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
