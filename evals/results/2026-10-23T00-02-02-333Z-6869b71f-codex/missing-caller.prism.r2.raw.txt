@@ -1,0 +1,21 @@
+Target: local repository `prism-eval-xRTiQb`, `HEAD~1...HEAD`, inspected with `git diff`. Both SHAs were rechecked and remained unchanged:
+
+- Base: `68fc43c69fa7e831fdb564eff8c745fbc8cb3bb0`
+- Head: `1f3d06ad04760795796a88c8d7cbc3fc4a96fc83`
+
+Draft source: your one pasted comment, fully assessed. No remote review threads were available.
+
+**Draft 1 — Invalid. Evidence: Disproved.**  
+`src/billing/charge.ts` exists in neither snapshot, and there is no `charge()` implementation or billing call in the repository. The complete path is `postOrder` → UUID validation → `createOrder` → lookup → insertion. The supplied insertion implementation only appends to an array. This snapshot does not support the claimed billing failure; history also provides no evidence that it was previously present and subsequently resolved.
+
+An incidental finding emerged while tracing persistence:
+
+**[P2] src/orders/create.ts:9 — Concurrent requests can create duplicate orders, breaking idempotency.** Evidence: two requests with the same valid UUID can both complete `findOne` before either inserts. `src/orders/schema.ts:14` appends both orders without enforcing uniqueness. The fixture exercises sequential calls only. Fix: make creation atomic by request ID and return the existing order on conflict. Proof: **Supported**, traced but not executed.
+
+Coverage: read `PR.md`, the complete creation function, API caller and validation, schema/storage implementation, fixture, full diff, and available history. This was a targeted Gate, not an exhaustive review. External consumers remain unknown. The referenced `references/example.md` was absent. No files were edited, tests run, or comments posted.
+
+Proposed test, not run: reset storage, concurrently call `postOrder` twice with the same valid UUID, then assert one stored order and that both calls return that order.
+
+**Suggested comments for the user to consider**
+
+1. `src/orders/create.ts:9` (current diff, added line): “Concurrent requests with the same request ID can both pass the lookup and insert separate orders because insertion does not enforce uniqueness. Could creation be atomic by request ID, returning the existing order on conflict? The current fixture only covers sequential retries.”

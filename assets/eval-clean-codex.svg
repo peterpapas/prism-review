@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">PRism clean Codex pilot: a finding benefit with higher token and time use</title>
+  <desc id="desc">In five synthetic probes repeated three times, the no-skill arm passed 12 of 15 strict grader checks and the PRism arm passed 8. In six unrelated draft-gate cells per arm, the no-skill arm suggested the seeded race 0 times and PRism 5 times. Total CLI tokens were 104476 and 191284; mean elapsed seconds were 16 and 28. The new-finding count is exploratory and graders are wording-sensitive.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0b1727"/><stop offset="1" stop-color="#132a39"/></linearGradient>
+    <style>
+      .eyebrow{font:700 15px Arial,sans-serif;letter-spacing:3px;fill:#77dfcf}
+      .heading{font:700 34px Arial,sans-serif;fill:#eef7f9}
+      .sub{font:18px Arial,sans-serif;fill:#b6ced9}
+      .metric{font:700 18px Arial,sans-serif;fill:#e9f5f6}
+      .scale{font:14px Arial,sans-serif;fill:#9cb9c8;text-anchor:end}
+      .arm{font:700 17px Arial,sans-serif;fill:#e6f2f4}
+      .value{font:700 18px Arial,sans-serif;fill:#f4f9fa}
+      .foot{font:15px Arial,sans-serif;fill:#c3d4dd}
+    </style>
+  </defs>
+  <rect width="1200" height="800" rx="22" fill="url(#bg)"/>
+  <text x="64" y="55" class="eyebrow">CLEAN CODEX PILOT</text>
+  <text x="64" y="98" class="heading">What changed with PRism text?</text>
+  <text x="64" y="126" class="sub">Five synthetic probes · three runs per arm · gpt-6.1-sol</text>
+  <g>
+    <rect x="64" y="152" width="1072" height="136" rx="14" fill="#14283a" stroke="#294153"/>
+    <text x="88" y="181" class="metric">Seeded race suggested during unrelated draft gates*</text>
+    <text x="1010" y="181" class="scale">0–6 cells</text>
+    <text x="89" y="218" class="arm">No skill</text>
+      <rect x="355" y="200" width="520" height="23" rx="5" fill="#1f3345"/>
+      <rect x="355" y="200" width="0" height="23" rx="5" fill="#e9af80"/>
+      <text x="900" y="218" class="value">0/6</text>
+<text x="89" y="254" class="arm">PRism text</text>
+      <rect x="355" y="236" width="520" height="23" rx="5" fill="#1f3345"/>
+      <rect x="355" y="236" width="433" height="23" rx="5" fill="#6fe0d0"/>
+      <text x="900" y="254" class="value">5/6</text>
+  </g>
+  <g>
+    <rect x="64" y="301" width="1072" height="136" rx="14" fill="#14283a" stroke="#294153"/>
+    <text x="88" y="330" class="metric">Strict grader passes†</text>
+    <text x="1010" y="330" class="scale">0–15 cells</text>
+    <text x="89" y="367" class="arm">No skill</text>
+      <rect x="355" y="349" width="520" height="23" rx="5" fill="#1f3345"/>
+      <rect x="355" y="349" width="416" height="23" rx="5" fill="#e9af80"/>
+      <text x="900" y="367" class="value">12/15</text>
+<text x="89" y="403" class="arm">PRism text</text>
+      <rect x="355" y="385" width="520" height="23" rx="5" fill="#1f3345"/>
+      <rect x="355" y="385" width="277" height="23" rx="5" fill="#6fe0d0"/>
+      <text x="900" y="403" class="value">8/15</text>
+  </g>
+  <g>
+    <rect x="64" y="450" width="1072" height="136" rx="14" fill="#14283a" stroke="#294153"/>
+    <text x="88" y="479" class="metric">Total CLI tokens</text>
+    <text x="1010" y="479" class="scale">0–200k</text>
+    <text x="89" y="516" class="arm">No skill</text>
+      <rect x="355" y="498" width="520" height="23" rx="5" fill="#1f3345"/>
+      <rect x="355" y="498" width="272" height="23" rx="5" fill="#e9af80"/>
+      <text x="900" y="516" class="value">104,476</text>
+<text x="89" y="552" class="arm">PRism text</text>
+      <rect x="355" y="534" width="520" height="23" rx="5" fill="#1f3345"/>
+      <rect x="355" y="534" width="497" height="23" rx="5" fill="#6fe0d0"/>
+      <text x="900" y="552" class="value">191,284</text>
+  </g>
+  <g>
+    <rect x="64" y="599" width="1072" height="136" rx="14" fill="#14283a" stroke="#294153"/>
+    <text x="88" y="628" class="metric">Mean elapsed time per cell</text>
+    <text x="1010" y="628" class="scale">0–35 s</text>
+    <text x="89" y="665" class="arm">No skill</text>
+      <rect x="355" y="647" width="520" height="23" rx="5" fill="#1f3345"/>
+      <rect x="355" y="647" width="241" height="23" rx="5" fill="#e9af80"/>
+      <text x="900" y="665" class="value">16 s</text>
+<text x="89" y="701" class="arm">PRism text</text>
+      <rect x="355" y="683" width="520" height="23" rx="5" fill="#1f3345"/>
+      <rect x="355" y="683" width="417" height="23" rx="5" fill="#6fe0d0"/>
+      <text x="900" y="701" class="value">28 s</text>
+  </g>
+  <text x="64" y="766" class="foot">* Post-run exploratory count; outputs checked. † Wording-sensitive rules with known false negatives.</text>
+  <text x="64" y="787" class="foot">Same isolated Codex model and fixtures. Descriptive only; no claim about real pull requests.</text>
+</svg>

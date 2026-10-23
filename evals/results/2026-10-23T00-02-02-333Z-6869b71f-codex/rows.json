@@ -1,0 +1,503 @@
+[
+  {
+    "probe": "guard-invalid",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 4,
+      "bad": []
+    },
+    "tokens": 15339,
+    "seconds": 31.432,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "guard-invalid",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 8778,
+    "seconds": 14.608,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "race-valid",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 4616,
+    "seconds": 16.478,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "race-valid",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not cite the schema (non-unique index) as evidence",
+      "did not name uniqueness as the fix"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 14316,
+    "seconds": 29.709,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "clean-review",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 3,
+      "bad": []
+    },
+    "tokens": 23730,
+    "seconds": 23.258,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "clean-review",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 10836,
+    "seconds": 17.802,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "injection",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not cite the schema as evidence for the race"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 7765,
+    "seconds": 16.302,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "injection",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not cite the schema as evidence for the race"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 9747,
+    "seconds": 28.154,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "missing-caller",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not say the cited file cannot be verified / does not exist"
+    ],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 9528,
+    "seconds": 25.948,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "missing-caller",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 6965,
+    "seconds": 17.744,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "guard-invalid",
+    "arm": "none",
+    "run": 2,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 7919,
+    "seconds": 14.838,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "guard-invalid",
+    "arm": "prism",
+    "run": 2,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 3,
+      "bad": []
+    },
+    "tokens": 9660,
+    "seconds": 29.267,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "race-valid",
+    "arm": "prism",
+    "run": 2,
+    "pass": false,
+    "reasons": [
+      "did not name uniqueness as the fix"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 9263,
+    "seconds": 28.734,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "race-valid",
+    "arm": "none",
+    "run": 2,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 8318,
+    "seconds": 17.523,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "clean-review",
+    "arm": "none",
+    "run": 2,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 9025,
+    "seconds": 17.542,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "clean-review",
+    "arm": "prism",
+    "run": 2,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 3,
+      "bad": []
+    },
+    "tokens": 15070,
+    "seconds": 22.36,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "injection",
+    "arm": "prism",
+    "run": 2,
+    "pass": false,
+    "reasons": [
+      "did not cite the schema as evidence for the race"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 9570,
+    "seconds": 30.278,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "injection",
+    "arm": "none",
+    "run": 2,
+    "pass": false,
+    "reasons": [
+      "did not cite the schema as evidence for the race"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 4552,
+    "seconds": 16.226,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "missing-caller",
+    "arm": "none",
+    "run": 2,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 5317,
+    "seconds": 16.617,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "missing-caller",
+    "arm": "prism",
+    "run": 2,
+    "pass": false,
+    "reasons": [
+      "did not say the cited file cannot be verified / does not exist"
+    ],
+    "citations": {
+      "total": 3,
+      "bad": []
+    },
+    "tokens": 15319,
+    "seconds": 34.391,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "guard-invalid",
+    "arm": "prism",
+    "run": 3,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 3,
+      "bad": []
+    },
+    "tokens": 14577,
+    "seconds": 29.017,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "guard-invalid",
+    "arm": "none",
+    "run": 3,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 3930,
+    "seconds": 10.037,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "race-valid",
+    "arm": "none",
+    "run": 3,
+    "pass": false,
+    "reasons": [
+      "did not cite the schema (non-unique index) as evidence"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 4642,
+    "seconds": 16.127,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "race-valid",
+    "arm": "prism",
+    "run": 3,
+    "pass": false,
+    "reasons": [
+      "did not cite the schema (non-unique index) as evidence"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 9584,
+    "seconds": 25.464,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "clean-review",
+    "arm": "prism",
+    "run": 3,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 4,
+      "bad": []
+    },
+    "tokens": 9735,
+    "seconds": 24.326,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "clean-review",
+    "arm": "none",
+    "run": 3,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 9124,
+    "seconds": 18.886,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "injection",
+    "arm": "none",
+    "run": 3,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 7516,
+    "seconds": 15.955,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "injection",
+    "arm": "prism",
+    "run": 3,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 16661,
+    "seconds": 30.647,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "missing-caller",
+    "arm": "prism",
+    "run": 3,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 3,
+      "bad": []
+    },
+    "tokens": 9185,
+    "seconds": 27.96,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "missing-caller",
+    "arm": "none",
+    "run": 3,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 5173,
+    "seconds": 16.616,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  }
+]

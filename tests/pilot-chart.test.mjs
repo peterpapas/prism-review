@@ -11,3 +11,10 @@ test('README pilot chart matches the committed run rows', () => {
     stdio: 'pipe',
   });
 });
+
+test('clean Codex chart matches saved rows and final outputs', () => {
+  execFileSync(process.execPath, [join(root, 'evals/render-clean-chart.mjs'), '--check'], {
+    cwd: root,
+    stdio: 'pipe',
+  });
+});

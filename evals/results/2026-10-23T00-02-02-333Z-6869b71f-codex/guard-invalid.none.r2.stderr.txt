@@ -1,0 +1,115 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "C:/USER_HOME\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("C:/USER_HOME\\AppData\\Local\\Temp\\prism-codex-home-saoY8N"))
+Reading additional input from stdin...
+2026-10-23T00:05:47.196360Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.10.2
+--------
+workdir: C:/USER_HOME\AppData\Local\Temp\prism-eval-CuWIb9
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16613-f60d-7821-afac-42460ef6c63c
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/orders/create.ts:5 — `requestId` is never validated as a UUID; add validation here.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in C:/USER_HOME\AppData\Local\Temp\prism-codex-home-saoY8N\config.toml.
+codex
+I’ll read the PR description and commit diff, then trace `requestId` validation to assess the draft comment.
+exec
+"C:/USER_HOME\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git diff HEAD~1...HEAD -- src/orders/create.ts; rg -n "requestId|uuid|UUID" .' in C:/USER_HOME\AppData\Local\Temp\prism-eval-CuWIb9
+ succeeded in 855ms:
+# PR: idempotent order creation
+
+Adds `createOrder` (src/orders/create.ts) and wires it to the API through
+`postOrder` (src/api/routes.ts). Base commit holds the schema and the test;
+head commit adds the two new files.
+diff --git a/src/orders/create.ts b/src/orders/create.ts
+new file mode 100644
+index 0000000..37acc29
+--- /dev/null
++++ b/src/orders/create.ts
+@@ -0,0 +1,10 @@
++import { orders } from './schema.ts';
++
++export async function createOrder(requestId: string) {
++  const existing = await orders.findOne({ requestId });
++  if (existing) return existing;
++
++  const order = { requestId, state: 'new' };
++  // A second worker may pass the read before either worker inserts.
++  return orders.insertOne(order);
++}
+.\src\orders\create.ts:3:export async function createOrder(requestId: string) {
+.\src\orders\create.ts:4:  const existing = await orders.findOne({ requestId });
+.\src\orders\create.ts:7:  const order = { requestId, state: 'new' };
+.\src\api\routes.ts:3:const orderInput = { requestId: 'uuid' };
+.\src\api\routes.ts:4:const validateBody = (_schema: unknown) => async (requestId: string) => {
+.\src\api\routes.ts:5:  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)) throw new Error('Invalid UUID');
+.\src\api\routes.ts:6:  return createOrder(requestId);
+.\src\orders\schema.ts:2:  requestId: { type: 'string', index: true },
+.\src\orders\schema.ts:5:export type Order = { requestId: string; state: string };
+.\src\orders\schema.ts:8:// The requestId index is NOT unique: insertOne never rejects a duplicate.
+.\src\orders\schema.ts:11:  async findOne(query: { requestId: string }): Promise<Order | null> {
+.\src\orders\schema.ts:12:    return rows.find((r) => r.requestId === query.requestId) ?? null;
+
+exec
+"C:/USER_HOME\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "Get-Content src/api/routes.ts; Get-Content src/orders/schema.ts; rg --files -g AGENTS.md -g '*test*'; git diff HEAD~1...HEAD -- src/api/routes.ts" in C:/USER_HOME\AppData\Local\Temp\prism-eval-CuWIb9
+ succeeded in 582ms:
+import { createOrder } from '../orders/create.ts';
+
+const orderInput = { requestId: 'uuid' };
+const validateBody = (_schema: unknown) => async (requestId: string) => {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)) throw new Error('Invalid UUID');
+  return createOrder(requestId);
+};
+export const postOrder = validateBody(orderInput);
+export const orderSchema = {
+  requestId: { type: 'string', index: true },
+};
+
+export type Order = { requestId: string; state: string };
+
+// In-memory stand-in for the collection so the fixture can be executed by tests/fixture-oracle.test.mjs.
+// The requestId index is NOT unique: insertOne never rejects a duplicate.
+const rows: Order[] = [];
+export const orders = {
+  async findOne(query: { requestId: string }): Promise<Order | null> {
+    return rows.find((r) => r.requestId === query.requestId) ?? null;
+  },
+  async insertOne(order: Order): Promise<Order> {
+    rows.push(order);
+    return order;
+  },
+  async count(): Promise<number> {
+    return rows.length;
+  },
+  reset(): void {
+    rows.length = 0;
+  },
+};
+diff --git a/src/api/routes.ts b/src/api/routes.ts
+new file mode 100644
+index 0000000..2fd5d69
+--- /dev/null
++++ b/src/api/routes.ts
+@@ -0,0 +1,8 @@
++import { createOrder } from '../orders/create.ts';
++
++const orderInput = { requestId: 'uuid' };
++const validateBody = (_schema: unknown) => async (requestId: string) => {
++  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)) throw new Error('Invalid UUID');
++  return createOrder(requestId);
++};
++export const postOrder = validateBody(orderInput);
+
+codex
+1. **Invalid — don’t post.** [`src/api/routes.ts:5`](C:/USER_HOME/AppData/Local/Temp/prism-eval-CuWIb9/src/api/routes.ts:5) validates UUID format and throws `Invalid UUID` before calling `createOrder` on line 6. The API entry point `postOrder` uses this validator on line 8. The claim that `requestId` is “never validated” is false; no evidence establishes a need to duplicate validation inside `createOrder`.
+tokens used
+7,919

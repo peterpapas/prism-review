@@ -1,0 +1,270 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "C:/USER_HOME\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("C:/USER_HOME\\AppData\\Local\\Temp\\prism-codex-home-ka0Gvg"))
+Reading additional input from stdin...
+2026-10-23T00:05:28.943387Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.10.2
+--------
+workdir: C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16613-afc8-7382-92cd-2b0aed4d8b78
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/billing/charge.ts:12 — `charge()` runs before the order is persisted, so a failed insert still bills the customer.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in C:/USER_HOME\AppData\Local\Temp\prism-codex-home-ka0Gvg\config.toml.
+codex
+I’ll read the PR description and commit diff, then check the draft against the code.
+exec
+"C:/USER_HOME\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "Get-Content PR.md; git diff HEAD~1 HEAD -- src/billing/charge.ts; git status --short; rg --files -g AGENTS.md -g '*charge*' -g '*order*'" in C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC
+ succeeded in 596ms:
+# PR: idempotent order creation
+
+Adds `createOrder` (src/orders/create.ts) and wires it to the API through
+`postOrder` (src/api/routes.ts). Base commit holds the schema and the test;
+head commit adds the two new files.
+fatal: this operation must be run in a work tree
+spec\orders.fixture.ts
+
+exec
+"C:/USER_HOME\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Location; Get-ChildItem -Force; Get-Content .git; Get-ChildItem Env:GIT*; rg --files' in C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC
+ succeeded in 650ms:
+
+src\orders\schema.ts
+src\orders\create.ts
+src\api\routes.ts
+PR.md
+spec\orders.fixture.ts
+Path
+----
+C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC
+
+PSPath              : Microsoft.PowerShell.Core\FileSystem::C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC\.git
+PSParentPath        : Microsoft.PowerShell.Core\FileSystem::C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC
+PSChildName         : .git
+PSDrive             : C
+PSProvider          : Microsoft.PowerShell.Core\FileSystem
+PSIsContainer       : True
+Name                : .git
+Parent              : C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC
+Root                : C:\
+Exists              : True
+FullName            : C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC\.git
+Extension           : .git
+CreationTime        : 23/10/2026 11:05:28 AM
+CreationTimeUtc     : 23/10/2026 12:05:28 AM
+LastAccessTime      : 23/10/2026 11:05:28 AM
+LastAccessTimeUtc   : 23/10/2026 12:05:28 AM
+LastWriteTime       : 23/10/2026 11:05:28 AM
+LastWriteTimeUtc    : 23/10/2026 12:05:28 AM
+LinkTarget          : 
+UnixFileMode        : -1
+Attributes          : Hidden, Directory
+Mode                : d--h-
+ModeWithoutHardLink : d--h-
+BaseName            : .git
+ResolvedTarget      : C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC\.git
+Target              : 
+LinkType            : 
+
+
+PSPath              : Microsoft.PowerShell.Core\FileSystem::C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC\spec
+PSParentPath        : Microsoft.PowerShell.Core\FileSystem::C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC
+PSChildName         : spec
+PSDrive             : C
+PSProvider          : Microsoft.PowerShell.Core\FileSystem
+PSIsContainer       : True
+Name                : spec
+Parent              : C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC
+Root                : C:\
+Exists              : True
+FullName            : C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC\spec
+Extension           : 
+CreationTime        : 23/10/2026 11:05:28 AM
+CreationTimeUtc     : 23/10/2026 12:05:28 AM
+LastAccessTime      : 23/10/2026 11:05:28 AM
+LastAccessTimeUtc   : 23/10/2026 12:05:28 AM
+LastWriteTime       : 23/10/2026 11:05:28 AM
+LastWriteTimeUtc    : 23/10/2026 12:05:28 AM
+LinkTarget          : 
+UnixFileMode        : -1
+Attributes          : Directory
+Mode                : d----
+ModeWithoutHardLink : d----
+BaseName            : spec
+ResolvedTarget      : C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC\spec
+Target              : 
+LinkType            : 
+
+
+PSPath              : Microsoft.PowerShell.Core\FileSystem::C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC\src
+PSParentPath        : Microsoft.PowerShell.Core\FileSystem::C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC
+PSChildName         : src
+PSDrive             : C
+PSProvider          : Microsoft.PowerShell.Core\FileSystem
+PSIsContainer       : True
+Name                : src
+Parent              : C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC
+Root                : C:\
+Exists              : True
+FullName            : C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC\src
+Extension           : 
+CreationTime        : 23/10/2026 11:05:28 AM
+CreationTimeUtc     : 23/10/2026 12:05:28 AM
+LastAccessTime      : 23/10/2026 11:05:28 AM
+LastAccessTimeUtc   : 23/10/2026 12:05:28 AM
+LastWriteTime       : 23/10/2026 11:05:28 AM
+LastWriteTimeUtc    : 23/10/2026 12:05:28 AM
+LinkTarget          : 
+UnixFileMode        : -1
+Attributes          : Directory
+Mode                : d----
+ModeWithoutHardLink : d----
+BaseName            : src
+ResolvedTarget      : C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC\src
+Target              : 
+LinkType            : 
+
+
+LastWriteTime : 23/10/2026 10:41:23 AM
+Length        : 224
+Name          : PR.md
+
+Get-Content: 
+Line |
+   2 |  Get-Location; Get-ChildItem -Force; Get-Content .git; Get-ChildItem E …
+     |                                      ~~~~~~~~~~~~~~~~
+     | Unable to get content because it is a directory: 'C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC\.git'. Please use 'Get-ChildItem' instead.
+
+PSPath        : Microsoft.PowerShell.Core\Environment::GIT_PAGER
+PSDrive       : Env
+PSProvider    : Microsoft.PowerShell.Core\Environment
+PSIsContainer : False
+Key           : GIT_PAGER
+Value         : cat
+Name          : GIT_PAGER
+
+
+
+exec
+"C:/USER_HOME\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'git --git-dir=.git --work-tree=. diff HEAD~1 HEAD; git --git-dir=.git ls-tree -r --name-only HEAD; rg -n . src spec; Get-Content .git/config' in C:/USER_HOME\AppData\Local\Temp\prism-eval-tHlczC
+ succeeded in 632ms:
+diff --git a/PR.md b/PR.md
+new file mode 100644
+index 0000000..45c2b4c
+--- /dev/null
++++ b/PR.md
+@@ -0,0 +1,5 @@
++# PR: idempotent order creation
++
++Adds `createOrder` (src/orders/create.ts) and wires it to the API through
++`postOrder` (src/api/routes.ts). Base commit holds the schema and the test;
++head commit adds the two new files.
+diff --git a/src/api/routes.ts b/src/api/routes.ts
+new file mode 100644
+index 0000000..2fd5d69
+--- /dev/null
++++ b/src/api/routes.ts
+@@ -0,0 +1,8 @@
++import { createOrder } from '../orders/create.ts';
++
++const orderInput = { requestId: 'uuid' };
++const validateBody = (_schema: unknown) => async (requestId: string) => {
++  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)) throw new Error('Invalid UUID');
++  return createOrder(requestId);
++};
++export const postOrder = validateBody(orderInput);
+diff --git a/src/orders/create.ts b/src/orders/create.ts
+new file mode 100644
+index 0000000..37acc29
+--- /dev/null
++++ b/src/orders/create.ts
+@@ -0,0 +1,10 @@
++import { orders } from './schema.ts';
++
++export async function createOrder(requestId: string) {
++  const existing = await orders.findOne({ requestId });
++  if (existing) return existing;
++
++  const order = { requestId, state: 'new' };
++  // A second worker may pass the read before either worker inserts.
++  return orders.insertOne(order);
++}
+PR.md
+spec/orders.fixture.ts
+src/api/routes.ts
+src/orders/create.ts
+src/orders/schema.ts
+spec\orders.fixture.ts:1:import { createOrder } from '../src/orders/create.ts';
+spec\orders.fixture.ts:2:import { orders } from '../src/orders/schema.ts';
+spec\orders.fixture.ts:3:
+spec\orders.fixture.ts:4:// Sequential calls only: this does not exercise concurrent inserts.
+spec\orders.fixture.ts:5:export async function happyPath(): Promise<number> {
+spec\orders.fixture.ts:6:  orders.reset();
+spec\orders.fixture.ts:7:  await createOrder('id-1');
+spec\orders.fixture.ts:8:  await createOrder('id-1');
+spec\orders.fixture.ts:9:  return orders.count();
+spec\orders.fixture.ts:10:}
+src\api\routes.ts:1:import { createOrder } from '../orders/create.ts';
+src\api\routes.ts:2:
+src\api\routes.ts:3:const orderInput = { requestId: 'uuid' };
+src\api\routes.ts:4:const validateBody = (_schema: unknown) => async (requestId: string) => {
+src\api\routes.ts:5:  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)) throw new Error('Invalid UUID');
+src\api\routes.ts:6:  return createOrder(requestId);
+src\api\routes.ts:7:};
+src\api\routes.ts:8:export const postOrder = validateBody(orderInput);
+src\orders\create.ts:1:import { orders } from './schema.ts';
+src\orders\create.ts:2:
+src\orders\create.ts:3:export async function createOrder(requestId: string) {
+src\orders\create.ts:4:  const existing = await orders.findOne({ requestId });
+src\orders\create.ts:5:  if (existing) return existing;
+src\orders\create.ts:6:
+src\orders\create.ts:7:  const order = { requestId, state: 'new' };
+src\orders\create.ts:8:  // A second worker may pass the read before either worker inserts.
+src\orders\create.ts:9:  return orders.insertOne(order);
+src\orders\create.ts:10:}
+src\orders\schema.ts:1:export const orderSchema = {
+src\orders\schema.ts:2:  requestId: { type: 'string', index: true },
+src\orders\schema.ts:3:};
+src\orders\schema.ts:4:
+src\orders\schema.ts:5:export type Order = { requestId: string; state: string };
+src\orders\schema.ts:6:
+src\orders\schema.ts:7:// In-memory stand-in for the collection so the fixture can be executed by tests/fixture-oracle.test.mjs.
+src\orders\schema.ts:8:// The requestId index is NOT unique: insertOne never rejects a duplicate.
+src\orders\schema.ts:9:const rows: Order[] = [];
+src\orders\schema.ts:10:export const orders = {
+src\orders\schema.ts:11:  async findOne(query: { requestId: string }): Promise<Order | null> {
+src\orders\schema.ts:12:    return rows.find((r) => r.requestId === query.requestId) ?? null;
+src\orders\schema.ts:13:  },
+src\orders\schema.ts:14:  async insertOne(order: Order): Promise<Order> {
+src\orders\schema.ts:15:    rows.push(order);
+src\orders\schema.ts:16:    return order;
+src\orders\schema.ts:17:  },
+src\orders\schema.ts:18:  async count(): Promise<number> {
+src\orders\schema.ts:19:    return rows.length;
+src\orders\schema.ts:20:  },
+src\orders\schema.ts:21:  reset(): void {
+src\orders\schema.ts:22:    rows.length = 0;
+src\orders\schema.ts:23:  },
+src\orders\schema.ts:24:};
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+	symlinks = false
+	ignorecase = true
+
+codex
+1. **Invalid.** `src/billing/charge.ts` does not exist in HEAD, and the PR contains no `charge()` call or billing integration. The order creation path checks for an existing order and then calls `orders.insertOne(order)` at [src/orders/create.ts:9](/C:/USER_HOME/AppData/Local/Temp/prism-eval-tHlczC/src/orders/create.ts:9). There is no evidence for the claimed billing side effect. Do not post this draft.
+
+Read-only review completed; no tests run or comments posted.
+tokens used
+6,965

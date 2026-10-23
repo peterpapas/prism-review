@@ -1,0 +1,167 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "C:/USER_HOME\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("C:/USER_HOME\\AppData\\Local\\Temp\\prism-codex-home-WRNu9z"))
+Reading additional input from stdin...
+2026-10-23T00:02:34.753023Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.10.2
+--------
+workdir: C:/USER_HOME\AppData\Local\Temp\prism-eval-KIMZXc
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16611-0725-7771-8143-f1819e154cbb
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/orders/create.ts:5 — `requestId` is never validated as a UUID; add validation here.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in C:/USER_HOME\AppData\Local\Temp\prism-codex-home-WRNu9z\config.toml.
+codex
+I’ll read the PR description and commit diff, then check the draft against the code and any validation upstream.
+exec
+"C:/USER_HOME\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git diff HEAD~1...HEAD -- src/orders/create.ts; Get-Content src/orders/create.ts; rg -n "requestId|UUID|uuid|createOrder" .' in C:/USER_HOME\AppData\Local\Temp\prism-eval-KIMZXc
+ succeeded in 580ms:
+# PR: idempotent order creation
+
+Adds `createOrder` (src/orders/create.ts) and wires it to the API through
+`postOrder` (src/api/routes.ts). Base commit holds the schema and the test;
+head commit adds the two new files.
+diff --git a/src/orders/create.ts b/src/orders/create.ts
+new file mode 100644
+index 0000000..37acc29
+--- /dev/null
++++ b/src/orders/create.ts
+@@ -0,0 +1,10 @@
++import { orders } from './schema.ts';
++
++export async function createOrder(requestId: string) {
++  const existing = await orders.findOne({ requestId });
++  if (existing) return existing;
++
++  const order = { requestId, state: 'new' };
++  // A second worker may pass the read before either worker inserts.
++  return orders.insertOne(order);
++}
+import { orders } from './schema.ts';
+
+export async function createOrder(requestId: string) {
+  const existing = await orders.findOne({ requestId });
+  if (existing) return existing;
+
+  const order = { requestId, state: 'new' };
+  // A second worker may pass the read before either worker inserts.
+  return orders.insertOne(order);
+}
+.\PR.md:3:Adds `createOrder` (src/orders/create.ts) and wires it to the API through
+.\src\orders\schema.ts:2:  requestId: { type: 'string', index: true },
+.\src\orders\schema.ts:5:export type Order = { requestId: string; state: string };
+.\src\orders\schema.ts:8:// The requestId index is NOT unique: insertOne never rejects a duplicate.
+.\src\orders\schema.ts:11:  async findOne(query: { requestId: string }): Promise<Order | null> {
+.\src\orders\schema.ts:12:    return rows.find((r) => r.requestId === query.requestId) ?? null;
+.\src\orders\create.ts:3:export async function createOrder(requestId: string) {
+.\src\orders\create.ts:4:  const existing = await orders.findOne({ requestId });
+.\src\orders\create.ts:7:  const order = { requestId, state: 'new' };
+.\spec\orders.fixture.ts:1:import { createOrder } from '../src/orders/create.ts';
+.\spec\orders.fixture.ts:7:  await createOrder('id-1');
+.\spec\orders.fixture.ts:8:  await createOrder('id-1');
+.\src\api\routes.ts:1:import { createOrder } from '../orders/create.ts';
+.\src\api\routes.ts:3:const orderInput = { requestId: 'uuid' };
+.\src\api\routes.ts:4:const validateBody = (_schema: unknown) => async (requestId: string) => {
+.\src\api\routes.ts:5:  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)) throw new Error('Invalid UUID');
+.\src\api\routes.ts:6:  return createOrder(requestId);
+
+exec
+"C:/USER_HOME\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "Get-Content src/api/routes.ts; Get-Content src/orders/schema.ts; Get-Content spec/orders.fixture.ts; git diff HEAD~1...HEAD; rg --files -g AGENTS.md -g '*README*'" in C:/USER_HOME\AppData\Local\Temp\prism-eval-KIMZXc
+ exited 1 in 594ms:
+import { createOrder } from '../orders/create.ts';
+
+const orderInput = { requestId: 'uuid' };
+const validateBody = (_schema: unknown) => async (requestId: string) => {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)) throw new Error('Invalid UUID');
+  return createOrder(requestId);
+};
+export const postOrder = validateBody(orderInput);
+export const orderSchema = {
+  requestId: { type: 'string', index: true },
+};
+
+export type Order = { requestId: string; state: string };
+
+// In-memory stand-in for the collection so the fixture can be executed by tests/fixture-oracle.test.mjs.
+// The requestId index is NOT unique: insertOne never rejects a duplicate.
+const rows: Order[] = [];
+export const orders = {
+  async findOne(query: { requestId: string }): Promise<Order | null> {
+    return rows.find((r) => r.requestId === query.requestId) ?? null;
+  },
+  async insertOne(order: Order): Promise<Order> {
+    rows.push(order);
+    return order;
+  },
+  async count(): Promise<number> {
+    return rows.length;
+  },
+  reset(): void {
+    rows.length = 0;
+  },
+};
+import { createOrder } from '../src/orders/create.ts';
+import { orders } from '../src/orders/schema.ts';
+
+// Sequential calls only: this does not exercise concurrent inserts.
+export async function happyPath(): Promise<number> {
+  orders.reset();
+  await createOrder('id-1');
+  await createOrder('id-1');
+  return orders.count();
+}
+diff --git a/PR.md b/PR.md
+new file mode 100644
+index 0000000..45c2b4c
+--- /dev/null
++++ b/PR.md
+@@ -0,0 +1,5 @@
++# PR: idempotent order creation
++
++Adds `createOrder` (src/orders/create.ts) and wires it to the API through
++`postOrder` (src/api/routes.ts). Base commit holds the schema and the test;
++head commit adds the two new files.
+diff --git a/src/api/routes.ts b/src/api/routes.ts
+new file mode 100644
+index 0000000..2fd5d69
+--- /dev/null
++++ b/src/api/routes.ts
+@@ -0,0 +1,8 @@
++import { createOrder } from '../orders/create.ts';
++
++const orderInput = { requestId: 'uuid' };
++const validateBody = (_schema: unknown) => async (requestId: string) => {
++  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)) throw new Error('Invalid UUID');
++  return createOrder(requestId);
++};
++export const postOrder = validateBody(orderInput);
+diff --git a/src/orders/create.ts b/src/orders/create.ts
+new file mode 100644
+index 0000000..37acc29
+--- /dev/null
++++ b/src/orders/create.ts
+@@ -0,0 +1,10 @@
++import { orders } from './schema.ts';
++
++export async function createOrder(requestId: string) {
++  const existing = await orders.findOne({ requestId });
++  if (existing) return existing;
++
++  const order = { requestId, state: 'new' };
++  // A second worker may pass the read before either worker inserts.
++  return orders.insertOne(order);
++}
+
+codex
+1. **Invalid — do not post.** The API validates `requestId` against a UUID-format regex before calling `createOrder` ([routes.ts:5](C:/USER_HOME/AppData/Local/Temp/prism-eval-KIMZXc/src/api/routes.ts:5)). Although `createOrder` itself accepts any string, no requirement establishes that validation must also occur there; the existing fixture explicitly passes `'id-1'` ([orders.fixture.ts:7](C:/USER_HOME/AppData/Local/Temp/prism-eval-KIMZXc/spec/orders.fixture.ts:7)). The claim that it is “never validated” is false.
+tokens used
+8,778

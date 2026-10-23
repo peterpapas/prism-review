@@ -13,8 +13,8 @@
 // Nothing here is a performance claim; it is a pilot you can read.
 import { spawnSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { homedir, tmpdir } from 'node:os';
 import { basename, dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { probes as allProbes, buildPrompt } from './probes.mjs';
@@ -39,7 +39,7 @@ function parseArgs(argv) {
 const args = parseArgs(process.argv.slice(2));
 const agent = args.agent ?? 'claude';
 if (!['claude', 'codex'].includes(agent)) throw new Error('--agent must be claude or codex');
-const model = args.model ?? (agent === 'claude' ? 'sonnet' : undefined);
+const model = args.model ?? (agent === 'claude' ? 'sonnet' : 'gpt-6.1-sol');
 const arms = (args.arms ?? 'none,prism').split(',');
 if (!arms.length || new Set(arms).size !== arms.length || arms.some((arm) => !['none', 'prism'].includes(arm))) throw new Error('--arms must list none and/or prism without duplicates');
 const runs = Number(args.runs ?? 1);
@@ -107,7 +107,7 @@ function makeWorkspace(probe, arm) {
 }
 
 function runClaude(ws, prompt, arm) {
-  const a = ['-p', prompt, '--output-format', 'json', '--permission-mode', 'dontAsk',
+  const a = ['-p', prompt, '--safe-mode', '--output-format', 'json', '--permission-mode', 'dontAsk',
     // Tool allowlist, not an OS sandbox: a listed git subcommand that takes --output could still write.
     '--allowedTools', 'Read', 'Grep', 'Glob', 'Bash(git diff:*)', 'Bash(git log:*)', 'Bash(git show:*)', 'Bash(git status:*)',
     'Bash(git rev-parse:*)', 'Bash(git ls-tree:*)', 'Bash(git ls-files:*)', 'Bash(git cat-file:*)', 'Bash(cat:*)', 'Bash(ls:*)',
@@ -118,22 +118,30 @@ function runClaude(ws, prompt, arm) {
   const r = sh('claude', a, ws);
   let j = {};
   try { j = JSON.parse(r.stdout); } catch { /* keep raw */ }
-  return { text: j.result ?? r.stdout, raw: r.stdout, stderr: r.stderr, cost: j.total_cost_usd, turns: j.num_turns, denials: j.permission_denials ?? [], isError: Boolean(j.is_error) || r.status !== 0 };
+  return { text: j.result ?? r.stdout, raw: r.stdout, stderr: r.stderr, cost: j.total_cost_usd, turns: j.num_turns, denials: j.permission_denials ?? [], isError: Boolean(j.is_error) || r.status !== 0, authError: j.api_error_status === 401 };
 }
 
 function runCodex(ws, prompt, tag) {
   const out = join(outDir, `${tag}.last.md`);
+  // A fresh Codex home carries only authentication: no user config, skills, plugins, or MCP servers.
+  const isolatedHome = mkdtempSync(join(tmpdir(), 'prism-codex-home-'));
+  const authSource = join(process.env.CODEX_HOME ?? join(homedir(), '.codex'), 'auth.json');
   // Read-only sandbox for model shell commands; -o writes one file outside the fixture workspace.
-  const a = ['exec', '--sandbox', 'read-only', '--skip-git-repo-check', '--ephemeral', '-c', 'mcp_servers={}', '-C', ws, '-o', out];
+  const a = ['exec', '--sandbox', 'read-only', '--skip-git-repo-check', '--ephemeral', '--ignore-user-config', '--ignore-rules', '-c', 'mcp_servers={}', '-c', 'features.prefer_mxc=true', '-C', ws, '-o', out];
   if (model) a.push('-m', model);
   a.push(prompt);
   try {
-    const r = sh('codex', a, ws);
+    if (!existsSync(authSource)) throw new Error(`Codex login not found at ${authSource}; run codex login first`);
+    copyFileSync(authSource, join(isolatedHome, 'auth.json'));
+    const r = sh('codex', a, ws, { CODEX_HOME: isolatedHome });
     const text = existsSync(out) ? readFileSync(out, 'utf8') : r.stdout;
-    // Codex reports no per-tool denial list in exec mode; denials are not observable here.
-    return { text, raw: r.stdout, stderr: r.stderr, cost: undefined, turns: undefined, denials: null, isError: r.status !== 0 };
+    const tokenMatch = r.stderr.match(/tokens used\s+([\d,]+)/i);
+    const blocked = /exec_command failed:[^\n]*blocked by policy/i.test(r.stderr);
+    // Codex CLI reports aggregate token use but no structured per-tool denial count in this mode.
+    return { text, raw: r.stdout, stderr: r.stderr, cost: undefined, turns: undefined, tokens: tokenMatch ? Number(tokenMatch[1].replaceAll(',', '')) : undefined, denials: null, isError: r.status !== 0 || blocked };
   } finally {
     rmSync(out, { force: true });
+    rmSync(isolatedHome, { recursive: true, force: true });
   }
 }
 
@@ -164,6 +172,7 @@ for (let run = 1; run <= runs && !regrade; run += 1) {
         const t0 = Date.now();
         if (dry) res = { text: `[dry-run] ${tag}`, raw: '', stderr: '', denials: [], isError: false };
         else res = agent === 'codex' ? runCodex(ws, prompt, tag) : runClaude(ws, prompt, arm);
+        if (res.authError) throw new Error('Claude authentication failed (HTTP 401); sign in with `claude auth login` before running evaluations');
         const seconds = (Date.now() - t0) / 1000;
         const st = sh('git', ['status', '--porcelain', '--ignored', '--untracked-files=all', '--', '.'], ws, { GIT_CONFIG_GLOBAL: '/dev/null' });
         if (st.status !== 0) throw new Error(`git status failed in ${ws}: ${st.stderr}`);
@@ -175,10 +184,10 @@ for (let run = 1; run <= runs && !regrade; run += 1) {
         const g = grade(probe.id, res.text, join(root, 'evals', probe.fixture));
         const pass = g.pass && !res.isError && wrote.length === 0;
         const reasons = [...g.reasons, ...(res.isError ? ['agent exited with an error'] : []), ...(wrote.length ? [`workspace changed: ${wrote.join(', ')}`] : [])];
-        const row = { probe: probe.id, arm, run, pass, reasons, citations: g.citations, cost: res.cost, turns: res.turns, seconds, denials: res.denials === null ? null : res.denials.length, wrote, error: res.isError };
+        const row = { probe: probe.id, arm, run, pass, reasons, citations: g.citations, cost: res.cost, turns: res.turns, tokens: res.tokens, seconds, denials: res.denials === null ? null : res.denials.length, wrote, error: res.isError };
         rows.push(row);
         writeFileSync(join(outDir, `${tag}.md`), `# ${tag}\n\nprompt:\n\n${prompt}\n\n---\n\n${res.text}\n`);
-        if (res.raw) writeFileSync(join(outDir, `${tag}.raw.json`), res.raw);
+        if (res.raw) writeFileSync(join(outDir, `${tag}.${agent === 'claude' ? 'raw.json' : 'raw.txt'}`), res.raw);
         if (res.stderr?.trim()) writeFileSync(join(outDir, `${tag}.stderr.txt`), res.stderr);
         console.log(`${pass ? 'PASS' : 'FAIL'}  ${tag.padEnd(34)} ${seconds.toFixed(0)}s${row.cost !== undefined ? `  $${row.cost.toFixed(3)}` : ''}${reasons.length ? `\n      ${reasons.join('\n      ')}` : ''}`);
       } finally {
@@ -203,16 +212,16 @@ const lines = [
   `# PRism behaviour run · ${stamp} · agent ${summaryAgent}${summaryModel ? ` · model ${summaryModel}` : ''}`,
   '',
   dry ? 'Dry run: placeholder outputs only; no agent was called.' : 'Pilot, not a performance claim. Same agent, prompt and fixture per probe; the arms differ in whether the skill text is present.',
-  `Arms: ${summaryArms.join(', ')}. Runs per cell: ${runsPerCell}. The final output of every cell sits next to this file (\`<probe>.<arm>.r<n>.md\`); the JSON envelope, when the agent provides one, is in \`.raw.json\`.`,
+  `Arms: ${summaryArms.join(', ')}. Runs per cell: ${runsPerCell}. The final output of every cell sits next to this file (\`<probe>.<arm>.r<n>.md\`); Claude's JSON envelope is in \`.raw.json\`, while Codex's stdout and trace are in \`.raw.txt\` and \`.stderr.txt\`.`,
   '',
   `| Probe | ${summaryArms.join(' | ')} |`,
   `|---|${summaryArms.map(() => '---').join('|')}|`,
   ...summaryProbes.map((p) => `| ${p.id} | ${summaryArms.map((a) => { const rs = rows.filter((r) => r.probe === p.id && r.arm === a); return `${rs.filter((r) => r.pass).length}/${rs.length}`; }).join(' | ')} |`),
   `| **total** | ${summaryArms.map((a) => `**${by(a).filter((r) => r.pass).length}/${by(a).length}**`).join(' | ')} |`,
   '',
-  '| Arm | invented citations | workspace changes | tool denials | agent errors | cost (USD) | mean seconds |',
-  '|---|---|---|---|---|---|---|',
-  ...summaryArms.map((a) => { const rs = by(a); return `| ${a} | ${sum(rs, (r) => r.citations.bad.length)} | ${sum(rs, (r) => r.wrote.length)} | ${rs.some((r) => r.denials === null) ? 'n/a' : sum(rs, (r) => r.denials)} | ${sum(rs, (r) => (r.error ? 1 : 0))} | ${rs.some((r) => r.cost !== undefined) ? sum(rs, (r) => r.cost).toFixed(3) : 'n/a'} | ${(sum(rs, (r) => r.seconds) / Math.max(rs.length, 1)).toFixed(0)} |`; }),
+  '| Arm | invented citations | workspace changes | tool denials | agent errors | cost (USD) | CLI tokens | mean seconds |',
+  '|---|---|---|---|---|---|---|---|',
+  ...summaryArms.map((a) => { const rs = by(a); return `| ${a} | ${sum(rs, (r) => r.citations.bad.length)} | ${sum(rs, (r) => r.wrote.length)} | ${rs.some((r) => r.denials === null) ? 'n/a' : sum(rs, (r) => r.denials)} | ${sum(rs, (r) => (r.error ? 1 : 0))} | ${rs.some((r) => r.cost !== undefined) ? sum(rs, (r) => r.cost).toFixed(3) : 'n/a'} | ${rs.some((r) => r.tokens !== undefined) ? sum(rs, (r) => r.tokens).toLocaleString('en-US') : 'n/a'} | ${(sum(rs, (r) => r.seconds) / Math.max(rs.length, 1)).toFixed(0)} |`; }),
   '',
   '## Failures',
   '',
@@ -223,7 +232,7 @@ const lines = [
   '',
   '- A pass means: the lines about the draft matched the expected call, the lines proposing comments did not contradict it, every `src/…:line` or `spec/…:line` citation exists in the fixture, the agent exited cleanly, and `git status --ignored` showed nothing outside the files the harness wrote. It does not prove the agent traced callers, that a cited line supports the claim, or that writes outside the workspace did not happen.',
   '- Graders are sentence-level pattern matching; read the outputs before trusting a row. `npm test` checks each grader against one good and one bad reference, no more. Re-score a saved run with `node evals/run.mjs --regrade evals/results/<dir>`.',
-  '- Isolation: a temp directory outside the project, project settings absent, no MCP servers (Claude: `--strict-mcp-config`; Codex: `mcp_servers={}`), a read-only tool allowlist (Claude, not an OS sandbox) or read-only sandbox (Codex). User-level settings, a global instruction file, and any globally installed skill still apply to both arms; check `~/.claude` for a PRism install before reading a no-skill row as skill-free.',
+  '- Isolation: a temp fixture outside the project, no MCP servers, a read-only tool allowlist (Claude, not an OS sandbox) or read-only sandbox (Codex). Claude uses `--safe-mode` in both arms to disable user and project customizations; managed policy may still apply. Codex uses a fresh temporary `CODEX_HOME` containing only a copy of the login file, with user config and rules disabled. Neither arm sees user-installed skills.',
   '- The `prism` arm is the skill text appended to the system prompt (Claude) or written as `AGENTS.md` (Codex). Neither is a skill install, and the two hosts are not an equivalent treatment; compare arms within one host only.',
   '- A tool denial (Claude only; Codex exec reports none) means the agent asked for a command outside the allowlist, usually a compound `git` command, and was refused. Recorded, not scored.',
   '',
