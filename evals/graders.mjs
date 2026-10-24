@@ -7,6 +7,7 @@
 // that talk about the draft; a long free-form answer can still confuse it. Read the raw output.
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { reportCases } from './report-cases.mjs';
 
 const CITATION = /\b((?:src|spec)\/[\w/.-]+\.(?:ts|js|md)):(\d+)\b/g;
 const FINDING = /\[P[0-3]\]/;
@@ -317,6 +318,44 @@ export const graders = {
     return { pass: reasons.length === 0, reasons, citations: c };
   },
 };
+
+// Report-derived cases share a rubric but retain case-specific evidence checks.
+// Their labels come from the supplied research notes, not independent access to
+// the private PRs. Regex outcomes still require a human read after a live run.
+for (const c of reportCases) {
+  graders[c.id] = (output, fixtureDir) => {
+    const reasons = [];
+    const anchor = c.draft?.match(/\b((?:src|spec)\/[\w/.-]+\.(?:ts|js|md)):(\d+)\b/)?.[0];
+    const d = dispositions(output, anchor?.split(':')[0] ?? 'src/case');
+    const lines = verdictLines(output, anchor?.split(':')[0] ?? 'src/case').join('\n');
+    if (c.verdict === 'finding') {
+      if (!FINDING.test(output) || !/\bSupported\b/i.test(output)) reasons.push('did not report a supported finding');
+    } else if (c.verdict === 'stands') {
+      if (!d.has('stands') || /\breword\b/i.test(lines) || d.has('invalid') || d.has('resolved')) reasons.push('did not keep the draft as a standing finding');
+    } else if (c.verdict === 'reword') {
+      if (!/\breword(?:ed|ing)?\b/i.test(lines) || d.has('invalid') || d.has('resolved')) reasons.push('did not reword the mixed or misframed draft');
+    } else if (c.verdict === 'resolved') {
+      if (!d.has('resolved') || d.has('stands') || d.has('invalid')) reasons.push('did not mark the historical finding resolved at head');
+    } else if (c.verdict === 'invalid') {
+      if (!d.has('invalid') || d.has('stands') || d.has('resolved')) reasons.push('did not drop the unsupported draft');
+    }
+    // Remove a fully quoted draft before checking evidence terms, so merely
+    // repeating the user's claim cannot satisfy the rubric.
+    const explanation = c.draft ? output.replaceAll(c.draft, '') : output;
+    for (const term of c.required) {
+      if (!new RegExp(term, 'i').test(explanation)) reasons.push(`missing evidence concept: ${term}`);
+    }
+    if (['invalid', 'resolved'].includes(c.verdict) && suggestionLines(output).length) reasons.push('offered a comment for a dropped or resolved draft');
+    for (const term of c.forbiddenSuggested ?? []) {
+      if (suggests(output, new RegExp(term, 'i'))) reasons.push(`suggested a harmful fix: ${term}`);
+    }
+    if (c.threads?.length && !c.threads.some((url) => output.includes(url.split(' — ')[0]))) reasons.push('did not link the existing submitted thread');
+    const citations = citationCheck(output, fixtureDir, anchor ? [anchor] : []);
+    if (citations.bad.length) reasons.push(`invented citations: ${citations.bad.join(', ')}`);
+    if (citations.total < 1) reasons.push('no current fixture citation beyond the quoted draft anchor');
+    return { pass: reasons.length === 0, reasons, citations };
+  };
+}
 
 export function grade(probeId, output, fixtureDir) {
   const g = graders[probeId];

@@ -1,6 +1,6 @@
 # Evaluation plan
 
-PRism has **no measured performance result yet**. Nothing in this directory is evidence that it finds real PR defects. Four additional probes are anonymized reconstructions inspired by review comments on a private production project, not copies of its code and not a benchmark on those PRs. See [field probe notes](field-probes.md). Record future runs with dated raw outputs, model and tool versions, exact snapshots, grader versions, exclusions, costs, and negative results.
+PRism has **no measured performance result yet**. Nothing in this directory is evidence that it finds real PR defects. Four probes are anonymized reconstructions inspired by review comments on a private production project; see [field probe notes](field-probes.md). Another 20 are synthetic reconstructions from an [anonymized user-supplied case report](report-derived-cases.md). The underlying PRs for that report were not accessible here, so its source conclusions have not been independently verified. Record future runs with dated raw outputs, model and tool versions, exact snapshots, grader versions, exclusions, costs, and negative results.
 
 Cheapest tier first. Each one is useful alone, and each one says what it cannot prove.
 
@@ -11,6 +11,8 @@ npm test
 ```
 
 `tests/skill.test.mjs` checks the skill files say what the README says: frontmatter name matches the directory, `lenses.md` defines exactly six lenses, the four evidence outcomes and five gate dispositions are defined, the read-only boundary comes before the first step, no private names in any tracked text file, no invented confidence percentages, every relative link resolves. `tests/example.test.mjs` checks the worked example cites real fixture lines and its counterevidence matches the fixture. `tests/fixture-oracle.test.mjs` executes representative behavior in the fixtures, including concurrency, auth, unbounded input, swallowed errors, and logging. `tests/graders.test.mjs` checks every behaviour grader below against one good and one bad reference output before any paid run.
+
+`tests/report-fixture-oracle.test.mjs` executes 15 of the report-derived fixture mechanisms. `tests/graders.test.mjs` also checks that all 20 generated fixture trees and reference answers match their declarations in `evals/report-cases.mjs`. Regenerate them after editing a declaration with `node evals/materialize-report-cases.mjs`.
 
 Proves: the text is consistent and the fixture labels are true. Cannot prove: any agent behaviour.
 
@@ -56,9 +58,11 @@ Claude's managed policy can still apply to both arms. Codex's built-in instructi
 | `field-observer-cleanup` | `fixture-field-observer` | claims a subscription is never released | Invalid; checks cleanup in both observer and fallback branches |
 | `field-serial-restore` | `fixture-field-restore` | asks to parallelize conditional writes | Invalid; preserves sorted order and fail-fast conflict handling |
 
+The [20 report-derived probes](report-derived-cases.md) extend the suite to 40 cases. They include 19 Gate probes and one Review probe. Some Gate fixtures target the commented revision; later-fix cases use two revisions so the reviewer can inspect both states.
+
 Graders live in `evals/graders.mjs`. They score the disposition on the lines about the draft, check that the lines proposing comments do not contradict it, and verify every `src/…:line` or `spec/…:line` citation (`.ts`, `.js`, `.md`) exists; other path shapes are not checked. A no-skill arm can pass by being right and a PRism arm can fail by being wrong. They are regular expressions over prose: a long free-form answer can still fool them in both directions, which is why the final outputs are committed next to the summary. Each has `evals/probes/<id>/good.md` and `bad.md`; `npm test` fails if a grader accepts the bad one or rejects the good one.
 
-Proves: on these 20 small fixtures, whether the skill text changes what the agent says and cites. Four fixtures reconstruct situations observed in real review discussions, using synthetic code and names. Cannot prove: that callers were traced, that a cited line supports the claim, or anything about real PRs. Read the final outputs before trusting a row. The static `snapshot-moved` probe tests response to inconsistent pinned SHAs; it does not simulate a remote branch changing during the agent's run. A changed head with a recoverable base should be refreshed and rechecked under `SKILL.md`, not automatically stopped.
+Proves: on these 40 small fixtures, whether the skill text changes what the agent says and cites. Twenty-four fixtures reconstruct situations described in real review discussions, using synthetic code and names. The 20 newly supplied cases were not checked against their source PRs here. Cannot prove: that callers were traced, that a cited line supports the claim, or anything about real PRs. Read the final outputs before trusting a row. The static `snapshot-moved` probe tests response to inconsistent pinned SHAs; it does not simulate a remote branch changing during the agent's run. A changed head with a recoverable base should be refreshed and rechecked under `SKILL.md`, not automatically stopped.
 
 Not yet probed: actual mid-run ref movement and thread pagination. The regex graders validate current-file citation existence but cannot verify a historical citation against its old commit; those before/after claims still need a human read.
 

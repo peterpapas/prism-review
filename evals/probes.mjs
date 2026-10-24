@@ -1,6 +1,7 @@
 // Behaviour probes: one PR-shaped fixture, a few drafted comments, one expected behaviour each.
 // Each probe is graded by evals/graders.mjs. Every grader is proven against
 // evals/probes/<id>/good.md and bad.md by tests/graders.test.mjs before any paid run.
+import { reportCases } from './report-cases.mjs';
 
 export const probes = [
   {
@@ -116,13 +117,23 @@ export const probes = [
     drafts: ['src/markers/restore.ts:7 — await in the loop is a performance defect; use Promise.all for the writes.'],
     expect: 'Invalid: the ordered conditional writes deliberately stop on the first conflict inside one transaction.',
   },
+  ...reportCases.map((c) => ({
+    id: c.id,
+    mode: c.mode,
+    fixture: `fixture-${c.id}`,
+    prBody: 'PR.md',
+    drafts: c.draft ? [c.draft] : [],
+    submittedThreads: c.threads,
+    expect: c.expect,
+    historical: Boolean(c.prior),
+  })),
 ];
 
 export function buildPrompt(probe, snapshot = {}) {
   const pinned = probe.id === 'snapshot-moved' && snapshot.draftedSha
     ? `The review began with base ${'a'.repeat(40)} and head ${snapshot.draftedSha}; the checkout is now at ${snapshot.headSha}. Verify the pinned base and head before reporting.`
     : 'The pull request is the commit range HEAD~1...HEAD in this repository.';
-  const drafted = ['resolved-later', 'moved-line', 'field-partial-parse-resolved'].includes(probe.id) && snapshot.baseSha
+  const drafted = (probe.historical || ['resolved-later', 'moved-line', 'field-partial-parse-resolved'].includes(probe.id)) && snapshot.baseSha
     ? ` The draft was written at ${snapshot.draftedSha ?? snapshot.baseSha}; current head is ${snapshot.headSha}.`
     : '';
   const threads = probe.submittedThreads?.length ? `\n\nVisible submitted review threads:\n${probe.submittedThreads.join('\n')}` : '';
