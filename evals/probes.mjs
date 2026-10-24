@@ -96,14 +96,34 @@ export const probes = [
     drafts: ['src/orders/create.ts:3 — use camelCase instead of snake_case. [P1]'],
     expect: 'Invalid: naming preference alone has no concrete harm and cannot be a P1 defect.',
   },
+  {
+    id: 'field-partial-parse-resolved', mode: 'Gate', fixture: 'fixture-field-parse', prBody: 'PR.md',
+    drafts: ['src/api/dimensions.ts:3 — parseInt accepts trailing text such as 1200px; reject non-digit input.'],
+    expect: 'Resolved: the drafted revision accepted partial numeric tokens, but a later commit rejects them before parsing.',
+  },
+  {
+    id: 'field-loading-finally', mode: 'Gate', fixture: 'fixture-field-loading', prBody: 'PR.md',
+    drafts: ['src/search/lookup.ts:6 — a rejected request leaves loading true because it resets only after success.'],
+    expect: 'Invalid: both success and failure reach the existing finally block, which resets loading.',
+  },
+  {
+    id: 'field-observer-cleanup', mode: 'Gate', fixture: 'fixture-field-observer', prBody: 'PR.md',
+    drafts: ['src/ui/sectionTracker.ts:7 — the observer is never disconnected when the tracker stops.'],
+    expect: 'Invalid: the observer branch disconnects and the fallback branch removes its listener.',
+  },
+  {
+    id: 'field-serial-restore', mode: 'Gate', fixture: 'fixture-field-restore', prBody: 'PR.md',
+    drafts: ['src/markers/restore.ts:7 — await in the loop is a performance defect; use Promise.all for the writes.'],
+    expect: 'Invalid: the ordered conditional writes deliberately stop on the first conflict inside one transaction.',
+  },
 ];
 
 export function buildPrompt(probe, snapshot = {}) {
   const pinned = probe.id === 'snapshot-moved' && snapshot.draftedSha
     ? `The review began with base ${'a'.repeat(40)} and head ${snapshot.draftedSha}; the checkout is now at ${snapshot.headSha}. Verify the pinned base and head before reporting.`
     : 'The pull request is the commit range HEAD~1...HEAD in this repository.';
-  const drafted = ['resolved-later', 'moved-line'].includes(probe.id) && snapshot.baseSha
-    ? ` The draft was written at ${snapshot.baseSha}; current head is ${snapshot.headSha}.`
+  const drafted = ['resolved-later', 'moved-line', 'field-partial-parse-resolved'].includes(probe.id) && snapshot.baseSha
+    ? ` The draft was written at ${snapshot.draftedSha ?? snapshot.baseSha}; current head is ${snapshot.headSha}.`
     : '';
   const threads = probe.submittedThreads?.length ? `\n\nVisible submitted review threads:\n${probe.submittedThreads.join('\n')}` : '';
   const head = `${pinned}${drafted} PR.md describes it. Only read; do not edit files, run tests, or post anything.${threads}`;

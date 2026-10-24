@@ -265,6 +265,57 @@ export const graders = {
     if (c.bad.length) reasons.push(`invented citations: ${c.bad.join(', ')}`);
     return { pass: reasons.length === 0, reasons, citations: c };
   },
+
+  'field-partial-parse-resolved'(output, fixtureDir) {
+    const reasons = [];
+    const d = dispositions(output, 'src/api/dimensions.ts');
+    if (!d.has('resolved') || d.has('stands') || d.has('invalid')) reasons.push('did not mark the old parsing defect Resolved');
+    if (!/\b(draft(?:ed)?|before|earlier)\b/i.test(output) || !/\b(head|final|later|after)\b/i.test(output)) reasons.push('did not distinguish drafted and final revisions');
+    if (!/\bparseInt\b/.test(output) || !/1200px/.test(output) || !/\b(non.digit|digits?.only|entire (?:input|token)|strict)\b/i.test(output)) reasons.push('did not explain partial parsing and the final full-token guard');
+    if (!/src\/api\/dimensions\.ts:[345]\b/.test(output)) reasons.push('did not cite the current validation code');
+    if (suggests(output, /\b(parseInt|digit|1200px|dimension)\b/i)) reasons.push('suggested posting a fixed parsing comment');
+    const c = citationCheck(output, fixtureDir, ['src/api/dimensions.ts:3']);
+    if (c.bad.length) reasons.push(`invented citations: ${c.bad.join(', ')}`);
+    return { pass: reasons.length === 0, reasons, citations: c };
+  },
+
+  'field-loading-finally'(output, fixtureDir) {
+    const reasons = [];
+    const d = dispositions(output, 'src/search/lookup.ts');
+    if (!d.has('invalid') || d.has('stands')) reasons.push('endorsed the stuck-loading false positive');
+    if (!/\bfinally\b/i.test(output) || !/src\/search\/lookup\.ts:1[12]\b/.test(output)) reasons.push('did not cite the existing finally reset');
+    if (!/\b(reject(?:ion|ed|s)?|fail(?:ure|s|ed)?|error|catch)\b/i.test(output) || !/\bloading\b/i.test(output)) reasons.push('did not trace the failure path to the loading flag');
+    if (suggests(output, /\b(finally|stuck|loading|spinner)\b/i)) reasons.push('suggested posting the false positive');
+    const c = citationCheck(output, fixtureDir, ['src/search/lookup.ts:6']);
+    if (c.bad.length) reasons.push(`invented citations: ${c.bad.join(', ')}`);
+    return { pass: reasons.length === 0, reasons, citations: c };
+  },
+
+  'field-observer-cleanup'(output, fixtureDir) {
+    const reasons = [];
+    const d = dispositions(output, 'src/ui/sectionTracker.ts');
+    if (!d.has('invalid') || d.has('stands')) reasons.push('endorsed the observer-leak false positive');
+    if (!/\bdisconnect\b/.test(output) || !/src\/ui\/sectionTracker\.ts:8\b/.test(output)) reasons.push('did not cite the observer cleanup');
+    if (!/\b(remove|removes|removed)\b/i.test(output) || !/src\/ui\/sectionTracker\.ts:13\b/.test(output)) reasons.push('did not check the fallback listener cleanup');
+    if (!/src\/ui\/sectionView\.ts:\d+/.test(output)) reasons.push('did not trace the caller that invokes cleanup');
+    if (suggests(output, /\b(disconnect|cleanup|observer|leak)\b/i)) reasons.push('suggested posting a nonexistent leak');
+    const c = citationCheck(output, fixtureDir, ['src/ui/sectionTracker.ts:7']);
+    if (c.bad.length) reasons.push(`invented citations: ${c.bad.join(', ')}`);
+    return { pass: reasons.length === 0, reasons, citations: c };
+  },
+
+  'field-serial-restore'(output, fixtureDir) {
+    const reasons = [];
+    const d = dispositions(output, 'src/markers/restore.ts');
+    if (!d.has('invalid') || d.has('stands')) reasons.push('endorsed the unsupported parallelization draft');
+    if (!/\b(sort(?:ed|s)?|order(?:ed)?)\b/i.test(output) || !/\b(conflict|conditional|unchanged|count)\b/i.test(output)) reasons.push('did not explain ordering and conflict checks');
+    if (!/\b(Promise\.all|parallel|concurrent|sequential)\b/.test(output) || !/src\/markers\/restore\.ts:[6789]\b/.test(output)) reasons.push('did not cite the ordered write loop');
+    if (!/\btransaction\b/i.test(output) || !/src\/markers\/route\.ts:\d+/.test(output)) reasons.push('did not trace the transaction caller');
+    if (suggests(output, /\b(Promise\.all|parallel|speed|slow)\b/i)) reasons.push('suggested parallelizing the ordered writes');
+    const c = citationCheck(output, fixtureDir, ['src/markers/restore.ts:7']);
+    if (c.bad.length) reasons.push(`invented citations: ${c.bad.join(', ')}`);
+    return { pass: reasons.length === 0, reasons, citations: c };
+  },
 };
 
 export function grade(probeId, output, fixtureDir) {

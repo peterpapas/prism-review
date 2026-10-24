@@ -1,6 +1,6 @@
 # Evaluation plan
 
-PRism has **no measured performance result yet**. Nothing in this directory is evidence that it finds real PR defects. Record future runs with dated raw outputs, model and tool versions, exact snapshots, grader versions, exclusions, costs, and negative results.
+PRism has **no measured performance result yet**. Nothing in this directory is evidence that it finds real PR defects. Four additional probes are anonymized reconstructions inspired by review comments on a private production project, not copies of its code and not a benchmark on those PRs. See [field probe notes](field-probes.md). Record future runs with dated raw outputs, model and tool versions, exact snapshots, grader versions, exclusions, costs, and negative results.
 
 Cheapest tier first. Each one is useful alone, and each one says what it cannot prove.
 
@@ -51,10 +51,14 @@ Claude's managed policy can still apply to both arms. Codex's built-in instructi
 | `logging-pii` | `fixture-logging` | none | Supported P1; identifies the full body log and redaction fix |
 | `snapshot-moved` | `fixture-snapshot` + unavailable pinned base | race draft against a prior head | stale notice with no ready-to-post comments |
 | `style-as-defect` | `fixture-style` | naming preference labeled P1 | Invalid; no high-severity style suggestion |
+| `field-partial-parse-resolved` | `fixture-field-parse` | partial numeric parsing, drafted before a later fix | Resolved; explains the original defect and the final full-token guard |
+| `field-loading-finally` | `fixture-field-loading` | claims a failed request leaves loading true | Invalid; traces rejection through the existing `finally` reset |
+| `field-observer-cleanup` | `fixture-field-observer` | claims a subscription is never released | Invalid; checks cleanup in both observer and fallback branches |
+| `field-serial-restore` | `fixture-field-restore` | asks to parallelize conditional writes | Invalid; preserves sorted order and fail-fast conflict handling |
 
 Graders live in `evals/graders.mjs`. They score the disposition on the lines about the draft, check that the lines proposing comments do not contradict it, and verify every `src/…:line` or `spec/…:line` citation (`.ts`, `.js`, `.md`) exists; other path shapes are not checked. A no-skill arm can pass by being right and a PRism arm can fail by being wrong. They are regular expressions over prose: a long free-form answer can still fool them in both directions, which is why the final outputs are committed next to the summary. Each has `evals/probes/<id>/good.md` and `bad.md`; `npm test` fails if a grader accepts the bad one or rejects the good one.
 
-Proves: on these 16 synthetic traps, whether the skill text changes what the agent says and cites. Cannot prove: that callers were traced, that a cited line supports the claim, or anything about real PRs. Read the final outputs before trusting a row. The static `snapshot-moved` probe tests response to inconsistent pinned SHAs; it does not simulate a remote branch changing during the agent's run. A changed head with a recoverable base should be refreshed and rechecked under `SKILL.md`, not automatically stopped.
+Proves: on these 20 small fixtures, whether the skill text changes what the agent says and cites. Four fixtures reconstruct situations observed in real review discussions, using synthetic code and names. Cannot prove: that callers were traced, that a cited line supports the claim, or anything about real PRs. Read the final outputs before trusting a row. The static `snapshot-moved` probe tests response to inconsistent pinned SHAs; it does not simulate a remote branch changing during the agent's run. A changed head with a recoverable base should be refreshed and rechecked under `SKILL.md`, not automatically stopped.
 
 Not yet probed: actual mid-run ref movement and thread pagination. The regex graders validate current-file citation existence but cannot verify a historical citation against its old commit; those before/after claims still need a human read.
 

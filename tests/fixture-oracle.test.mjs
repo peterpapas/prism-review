@@ -95,3 +95,80 @@ test('style-as-defect fixture: renaming the local preserves behavior', async () 
   const head = await import('../evals/fixture-style/src/orders/create.ts');
   assert.deepEqual(head.createOrder('  id-1  '), base.createOrder('  id-1  '));
 });
+
+test('field parsing fixture: the draft accepts partial tokens and the final revision rejects them', async () => {
+  const draft = await import('../evals/fixture-field-parse/drafted/src/api/dimensions.ts');
+  const head = await import('../evals/fixture-field-parse/src/api/dimensions.ts');
+  assert.equal(draft.parseDimension('1200px'), 1200);
+  assert.equal(draft.parseDimension('1e3'), 1);
+  assert.equal(head.parseDimension('1200px'), null);
+  assert.equal(head.parseDimension('1e3'), null);
+  assert.equal(head.parseDimension('1200'), 1200);
+});
+
+test('field loading fixture: a rejected request still clears the loading flag', async () => {
+  const { lookup } = await import('../evals/fixture-field-loading/src/search/lookup.ts');
+  const state = { loading: false, results: ['stale'], error: null };
+  await lookup(() => Promise.reject(new Error('offline')), state);
+  assert.deepEqual(state, { loading: false, results: [], error: 'offline' });
+});
+
+test('field observer fixture: both feature and fallback branches release subscriptions', async () => {
+  const { mountSection } = await import('../evals/fixture-field-observer/src/ui/sectionView.ts');
+  const target = {};
+  const calls = [];
+  const scroll = { add: (handler) => calls.push(['add', handler]), remove: (handler) => calls.push(['remove', handler]) };
+  const stopObserver = mountSection(target, () => ({
+    observe: (value) => calls.push(['observe', value]),
+    disconnect: () => calls.push(['disconnect']),
+  }), scroll);
+  stopObserver();
+  assert.deepEqual(calls.map(([name]) => name), ['observe', 'disconnect']);
+  const stopFallback = mountSection(target, null, scroll);
+  stopFallback();
+  assert.deepEqual(calls.slice(2).map(([name]) => name), ['add', 'remove']);
+  assert.equal(calls[2][1], calls[3][1], 'the same listener is removed');
+});
+
+test('field restore fixture: writes are ordered and stop at the first conflict', async () => {
+  const { restore, MarkerConflict } = await import('../evals/fixture-field-restore/src/markers/restore.ts');
+  const visited = [];
+  const markers = [
+    { id: 'c', expected: 'new', before: 'old' },
+    { id: 'b', expected: 'new', before: 'old' },
+    { id: 'a', expected: 'new', before: 'old' },
+  ];
+  await assert.rejects(() => restore(markers, {
+    updateIfUnchanged: async (marker) => {
+      visited.push(marker.id);
+      return { count: marker.id === 'b' ? 0 : 1 };
+    },
+  }), MarkerConflict);
+  assert.deepEqual(visited, ['a', 'b'], 'c is not scheduled after b conflicts');
+});
+
+test('field restore fixture: the route runs restoration inside one rollback boundary', async () => {
+  const { handleRestore } = await import('../evals/fixture-field-restore/src/markers/route.ts');
+  const rows = new Map([['a', 'new'], ['b', 'other']]);
+  const markers = [
+    { id: 'a', expected: 'new', before: 'old' },
+    { id: 'b', expected: 'new', before: 'old' },
+  ];
+  await assert.rejects(() => handleRestore(markers, {
+    transaction: async (work) => {
+      const before = new Map(rows);
+      try {
+        return await work({ updateIfUnchanged: async (marker) => {
+          if (rows.get(marker.id) !== marker.expected) return { count: 0 };
+          rows.set(marker.id, marker.before);
+          return { count: 1 };
+        } });
+      } catch (error) {
+        rows.clear();
+        for (const [id, value] of before) rows.set(id, value);
+        throw error;
+      }
+    },
+  }), /marker changed/);
+  assert.deepEqual([...rows], [['a', 'new'], ['b', 'other']]);
+});
