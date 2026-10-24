@@ -1,0 +1,1 @@
+1. **Invalid — do not post.** `routes.js:2` wraps the page with `withParams`. In `src/case/wrapper.js:2–4`, that wrapper receives `routeParams`, loads the page, and calls `Page({ ...routeParams })`, forwarding `projectId`. `src/case/page.js:2` returns `'loaded ' + projectId` when provided. The draft overlooks this prop forwarding.

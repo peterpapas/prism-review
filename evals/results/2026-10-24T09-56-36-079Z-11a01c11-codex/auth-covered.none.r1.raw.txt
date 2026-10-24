@@ -1,0 +1,1 @@
+No actionable defects found in `HEAD~1...HEAD`. The new write route uses `requireAuth`, which checks `req.user` before invoking `createOrder`. No tests were run.

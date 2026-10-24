@@ -1,0 +1,6 @@
+1. **Needs rewording.** The missing server flag check is supported; the claimed `isTest` safety bypass is not.
+
+   Evidence: `client.js:2` gates visibility on `flags.groupDrafts`, but `grouping.js:2` accepts coordinators and line 4 inserts groups without checking that flag. The server flag helper in `flags.js` is unused. However, `isTest` returns an empty preview before insertion (line 3), after authorization—it does not bypass any demonstrated safety check.
+
+   Suggested comment at `src/case/grouping.js:4`:
+   > `createGroups` allows coordinators to insert groups without checking `groupDrafts`. Hiding the UI does not enforce the flag on this method. Should the server check the flag before allowing insertion?

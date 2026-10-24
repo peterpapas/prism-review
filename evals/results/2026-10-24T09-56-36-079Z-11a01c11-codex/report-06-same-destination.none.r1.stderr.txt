@@ -1,0 +1,84 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-LIdctL"))
+Reading additional input from stdin...
+2026-10-24T10:18:33.819583Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-8nx7ry
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d6b-5666-75a2-b041-df9708501459
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. The draft was written at 8a11112fedf77010cef6ee02fc732134844a46f9; current head is 6d48d091298bcd6b60c71ee7a6e62ea70037ea89. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/case/move.js:5 — if both emails resolve to the same contact, copy-then-delete removes its own associations.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-LIdctL\config.toml.
+codex
+I’ll read the PR description and compare the draft commit with the current code to check whether the comment still stands.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git status --short; git diff HEAD~1 HEAD -- src/case/move.js; git show HEAD:src/case/move.js; git show 8a11112fedf77010cef6ee02fc732134844a46f9:src/case/move.js; rg --files -g AGENTS.md' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-8nx7ry
+ exited 1 in 1420ms:
+# Synthetic review case report-06-same-destination
+
+A draft warned about email aliases resolving to the same CRM contact. A later push added a same-ID guard.
+fatal: this operation must be run in a work tree
+diff --git a/src/case/move.js b/src/case/move.js
+index 7a275b4..dbacf7a 100644
+--- a/src/case/move.js
++++ b/src/case/move.js
+@@ -1,6 +1,7 @@
+ export async function moveContact(oldEmail, newEmail, crm) {
+   const sourceId = await crm.find(oldEmail);
+   const targetId = await crm.upsert(newEmail);
++  if (sourceId === targetId) return targetId;
+   await crm.copyAssociations(sourceId, targetId);
+   await crm.deleteAssociations(sourceId);
+   await crm.clearRole(sourceId);
+export async function moveContact(oldEmail, newEmail, crm) {
+  const sourceId = await crm.find(oldEmail);
+  const targetId = await crm.upsert(newEmail);
+  if (sourceId === targetId) return targetId;
+  await crm.copyAssociations(sourceId, targetId);
+  await crm.deleteAssociations(sourceId);
+  await crm.clearRole(sourceId);
+  return targetId;
+}
+export async function moveContact(oldEmail, newEmail, crm) {
+  const sourceId = await crm.find(oldEmail);
+  const targetId = await crm.upsert(newEmail);
+  await crm.copyAssociations(sourceId, targetId);
+  await crm.deleteAssociations(sourceId);
+  await crm.clearRole(sourceId);
+  return targetId;
+}
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'git rev-parse HEAD; git log -2 --oneline; git ls-tree -r --name-only HEAD; git show 6d48d091298bcd6b60c71ee7a6e62ea70037ea89:src/case/move.js' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-8nx7ry
+ succeeded in 1110ms:
+6d48d091298bcd6b60c71ee7a6e62ea70037ea89
+6d48d09 head: changed code
+8a11112 base: pre-review code
+PR.md
+src/case/context.js
+src/case/move.js
+export async function moveContact(oldEmail, newEmail, crm) {
+  const sourceId = await crm.find(oldEmail);
+  const targetId = await crm.upsert(newEmail);
+  if (sourceId === targetId) return targetId;
+  await crm.copyAssociations(sourceId, targetId);
+  await crm.deleteAssociations(sourceId);
+  await crm.clearRole(sourceId);
+  return targetId;
+}
+
+codex
+1. **Resolved — don’t post.** The draft commit lacked a same-contact guard, so the concern applied then. Current HEAD adds `if (sourceId === targetId) return targetId;` at `src/case/move.js:4`, before copying or deleting associations or clearing the role. When both emails resolve to the same contact ID, those operations are skipped.
+tokens used
+6,626

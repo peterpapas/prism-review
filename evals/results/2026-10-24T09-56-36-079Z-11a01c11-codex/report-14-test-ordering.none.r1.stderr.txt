@@ -1,0 +1,92 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-VcyOs9"))
+Reading additional input from stdin...
+2026-10-24T10:25:27.989786Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-W7Mf4S
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d71-a858-7bc1-b5a8-bce9af6c6707
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. spec/cancel.fixture.js:3 — no tests cover sequence claiming for series and single cancellations; add both end-state tests.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-VcyOs9\config.toml.
+codex
+I’ll read the PR description and diff, then check the cancellation fixture and test coverage against the draft.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "Get-Content PR.md; git diff HEAD~1 HEAD --; rg --files -g AGENTS.md -g '*cancel*' -g '*series*' -g '*single*'" in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-W7Mf4S
+ succeeded in 1164ms:
+# Synthetic review case report-14-test-ordering
+
+An existing pair of tests checks final sequence values. The new change promises the claim happens before a notification is built.
+diff --git a/PR.md b/PR.md
+new file mode 100644
+index 0000000..81a6eeb
+--- /dev/null
++++ b/PR.md
+@@ -0,0 +1,3 @@
++# Synthetic review case report-14-test-ordering
++
++An existing pair of tests checks final sequence values. The new change promises the claim happens before a notification is built.
+diff --git a/spec/cancel.fixture.js b/spec/cancel.fixture.js
+new file mode 100644
+index 0000000..e26d8d0
+--- /dev/null
++++ b/spec/cancel.fixture.js
+@@ -0,0 +1,4 @@
++import { cancel } from '../src/case/cancel.js';
++// These tests assert only the sequence at the end, not at notify time.
++export async function seriesTest(sequence, notify) { await cancel(true, sequence, notify); if (sequence.value !== 1) throw new Error('no claim'); }
++export async function singleTest(sequence, notify) { await cancel(false, sequence, notify); if (sequence.value !== 0) throw new Error('unexpected claim'); }
+diff --git a/src/case/cancel.js b/src/case/cancel.js
+new file mode 100644
+index 0000000..14078aa
+--- /dev/null
++++ b/src/case/cancel.js
+@@ -0,0 +1,4 @@
++export async function cancel(all, sequence, notify) {
++  if (all) await sequence.claim();
++  await notify();
++}
+spec\cancel.fixture.js
+src\case\cancel.js
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "rg --files --hidden -g '"'!.git'"'; Get-Content spec/cancel.fixture.js; Get-Content src/case/cancel.js; git status --short" in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-W7Mf4S
+ exited 1 in 1107ms:
+src\case\context.js
+src\case\cancel.js
+spec\cancel.fixture.js
+PR.md
+import { cancel } from '../src/case/cancel.js';
+// These tests assert only the sequence at the end, not at notify time.
+export async function seriesTest(sequence, notify) { await cancel(true, sequence, notify); if (sequence.value !== 1) throw new Error('no claim'); }
+export async function singleTest(sequence, notify) { await cancel(false, sequence, notify); if (sequence.value !== 0) throw new Error('unexpected claim'); }
+export async function cancel(all, sequence, notify) {
+  if (all) await sequence.claim();
+  await notify();
+}
+fatal: this operation must be run in a work tree
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content src/case/context.js' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-W7Mf4S
+ succeeded in 890ms:
+// Small synthetic PR fixture. All names and values are invented.
+
+codex
+1. **Needs rewording.** [seriesTest](spec/cancel.fixture.js:3) already checks the final sequence value is `1`; [singleTest](spec/cancel.fixture.js:4) checks it is `0`. The missing coverage is ordering: neither checks the sequence inside `notify`, although `PR.md` identifies that guarantee.
+
+   Suggested comment: “These tests check only final sequence values. Please assert inside `notify` that the series sequence has already been claimed; the current series test would also pass if claiming happened after notification.”
+
+Read only; no tests run or comments posted.
+tokens used
+7,740

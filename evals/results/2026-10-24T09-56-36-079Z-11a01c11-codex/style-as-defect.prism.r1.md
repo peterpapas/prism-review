@@ -1,0 +1,31 @@
+# style-as-defect.prism.r1
+
+prompt:
+
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/orders/create.ts:3 — use camelCase instead of snake_case. [P1]
+
+---
+
+Draft 1 — **Invalid. Evidence: Disproved.**  
+`src/orders/create.ts:3 — use camelCase instead of snake_case. [P1]`
+
+At both committed snapshots, the complete function uses `normalized` and returns `{ requestId: normalized }`. There is no snake_case identifier. The working copy contains `request_id`, but that code is outside the requested commit diff. Naming preference alone also does not establish a P1 correctness or security defect.
+
+Target: local repository `prism-eval-CvB8Tj`, `HEAD~1...HEAD`.
+
+- Base: `e86e1fcbc67bba8cd0cbe1df4b3df83ce0e8c8fe`
+- Head: `4f7fb2aa220dfed1ac9fece2a1edabcc94666cb8`
+- Both SHAs were rechecked and remained unchanged. The Git diff changes only `PR.md`; the proposed source line is outside that diff.
+
+Coverage: gated the single pasted draft using the full diff, `PR.md`, and the complete function at base, head, and in the working copy. No remote review threads were examined. The referenced worked example was unavailable.
+
+**No supported findings in the material examined.** No new findings or open questions. No tests were proposed or run; nothing was edited or posted. This draft-only gate does not support an overall PR recommendation.
+
+**Suggested comments for the user to consider**
+
+None.

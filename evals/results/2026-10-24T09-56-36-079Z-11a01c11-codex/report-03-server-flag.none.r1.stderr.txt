@@ -1,0 +1,148 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-OKbHBy"))
+Reading additional input from stdin...
+2026-10-24T10:16:24.899769Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-uQNaIl
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d69-5e5f-7910-8fb0-2e450b86b06d
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/case/grouping.js:3 — coordinators can invoke the new grouping method when the flag is off and can pass isTest to bypass safety.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-OKbHBy\config.toml.
+codex
+I’ll read the PR description and commit diff, then trace the grouping method’s authorization and safety checks to assess the draft.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git diff HEAD~1...HEAD -- src/case/grouping.js; rg -n "grouping|isTest|coordinator" src' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-uQNaIl
+ succeeded in 1568ms:
+# Synthetic review case report-03-server-flag
+
+The new grouping UI is hidden by a client flag. The server method was widened to coordinators.
+diff --git a/src/case/grouping.js b/src/case/grouping.js
+new file mode 100644
+index 0000000..a09b81c
+--- /dev/null
++++ b/src/case/grouping.js
+@@ -0,0 +1,5 @@
++export async function createGroups(user, input, store) {
++  if (!user || (!user.admin && !user.coordinator)) throw new Error('forbidden');
++  if (input.isTest) return { preview: true, groups: [] };
++  return store.insert({ groups: input.groups });
++}
+src\case\grouping.js:2:  if (!user || (!user.admin && !user.coordinator)) throw new Error('forbidden');
+src\case\grouping.js:3:  if (input.isTest) return { preview: true, groups: [] };
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "rg --files -g AGENTS.md -g '*'; git diff HEAD~1...HEAD; git status --short" in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-uQNaIl
+ exited 1 in 1112ms:
+PR.md
+src\case\grouping.js
+src\case\flags.js
+src\case\context.js
+src\case\client.js
+.git\config
+.git\description
+.git\HEAD
+.git\COMMIT_EDITMSG
+.git\index
+.git\info\exclude
+.git\hooks\fsmonitor-watchman.sample
+.git\hooks\commit-msg.sample
+.git\hooks\applypatch-msg.sample
+.git\hooks\pre-commit.sample
+.git\hooks\pre-applypatch.sample
+.git\hooks\post-update.sample
+.git\hooks\pre-push.sample
+.git\hooks\pre-merge-commit.sample
+.git\hooks\pre-rebase.sample
+.git\hooks\pre-receive.sample
+.git\hooks\update.sample
+.git\hooks\sendemail-validate.sample
+.git\hooks\push-to-checkout.sample
+.git\hooks\prepare-commit-msg.sample
+.git\logs\HEAD
+.git\refs\heads\main
+.git\logs\refs\heads\main
+.git\objects\34\423c1ec6c3e94e8434cf35e02b6a1f8603917e
+.git\objects\76\3e44ce20cc967b1d4b077e5f533274f4713c04
+.git\objects\36\4c5d27ce6ac9d8a59c3eb7cf99adfb707f9086
+.git\objects\2f\dbc231f78ba365a25a6750eeeacd8832699884
+.git\objects\6b\7494dade8f56d17c7d106d7faf52e7b6b6f8e7
+.git\objects\68\62982312b1d1235e7b1e04f49e2ea2bfac0f83
+.git\objects\a0\9b81c0293213d9bce2055fead3caf56fa4db20
+.git\objects\5e\d5956841f708f678d093217e5f1a6ed4c0f9e0
+.git\objects\7d\a815933d94421ee48378c2b9bc5dfd4f58f03b
+.git\objects\7b\e4f450d753bbef16787e85f8f877d09f5ec91d
+.git\objects\de\9234b1bf250f3dac35e4aee5bc86112bd5dfdb
+.git\objects\f4\e9aecfcecbe42785edac2d69cdaed995abb592
+.git\objects\7e\520b4adb403a801f46c31a8f8c62ee8c92981d
+diff --git a/PR.md b/PR.md
+new file mode 100644
+index 0000000..6862982
+--- /dev/null
++++ b/PR.md
+@@ -0,0 +1,3 @@
++# Synthetic review case report-03-server-flag
++
++The new grouping UI is hidden by a client flag. The server method was widened to coordinators.
+diff --git a/src/case/client.js b/src/case/client.js
+new file mode 100644
+index 0000000..364c5d2
+--- /dev/null
++++ b/src/case/client.js
+@@ -0,0 +1,3 @@
++export function canShowGrouping(flags) {
++  return Boolean(flags.groupDrafts);
++}
+diff --git a/src/case/flags.js b/src/case/flags.js
+new file mode 100644
+index 0000000..f4e9aec
+--- /dev/null
++++ b/src/case/flags.js
+@@ -0,0 +1,3 @@
++export function isEnabledOnServer(flags, name) {
++  return Boolean(flags[name]);
++}
+diff --git a/src/case/grouping.js b/src/case/grouping.js
+new file mode 100644
+index 0000000..a09b81c
+--- /dev/null
++++ b/src/case/grouping.js
+@@ -0,0 +1,5 @@
++export async function createGroups(user, input, store) {
++  if (!user || (!user.admin && !user.coordinator)) throw new Error('forbidden');
++  if (input.isTest) return { preview: true, groups: [] };
++  return store.insert({ groups: input.groups });
++}
+fatal: this operation must be run in a work tree
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content src/case/context.js; Get-Content src/case/client.js; Get-Content src/case/flags.js' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-uQNaIl
+ succeeded in 949ms:
+// Small synthetic PR fixture. All names and values are invented.
+export function canShowGrouping(flags) {
+  return Boolean(flags.groupDrafts);
+}
+export function isEnabledOnServer(flags, name) {
+  return Boolean(flags[name]);
+}
+
+codex
+1. **Needs rewording.** The missing server flag check is supported; the claimed `isTest` safety bypass is not.
+
+   Evidence: `client.js:2` gates visibility on `flags.groupDrafts`, but `grouping.js:2` accepts coordinators and line 4 inserts groups without checking that flag. The server flag helper in `flags.js` is unused. However, `isTest` returns an empty preview before insertion (line 3), after authorization—it does not bypass any demonstrated safety check.
+
+   Suggested comment at `src/case/grouping.js:4`:
+   > `createGroups` allows coordinators to insert groups without checking `groupDrafts`. Hiding the UI does not enforce the flag on this method. Should the server check the flag before allowing insertion?
+tokens used
+9,255

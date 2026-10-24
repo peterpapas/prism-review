@@ -1,0 +1,86 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-n7Qnw3"))
+Reading additional input from stdin...
+2026-10-24T10:28:58.359933Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-OpbpZ1
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d74-dde1-7e63-8765-4ece275a988d
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/case/paths.js:3 — REPORTS is a route object; pass REPORTS.path or replace throws.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-n7Qnw3\config.toml.
+codex
+I’ll read the PR description and diff, then check the draft against the relevant code.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "Get-Content PR.md; git diff HEAD~1...HEAD -- src/case/paths.js; Get-Content src/case/paths.js; rg -n '\\bREPORTS\\b|replace\\(' src" in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-OpbpZ1
+ succeeded in 1334ms:
+# Synthetic review case report-18-route-shape
+
+The route constant is a path string. A test contains an unrelated always-fallback ternary.
+diff --git a/src/case/paths.js b/src/case/paths.js
+new file mode 100644
+index 0000000..827a272
+--- /dev/null
++++ b/src/case/paths.js
+@@ -0,0 +1,4 @@
++export const ROUTE_PATHS = { REPORTS: '/reports/:id' };
++export function reportUrl(id) {
++  return ROUTE_PATHS.REPORTS.replace(':id', String(id));
++}
+export const ROUTE_PATHS = { REPORTS: '/reports/:id' };
+export function reportUrl(id) {
+  return ROUTE_PATHS.REPORTS.replace(':id', String(id));
+}
+src\case\paths.js:1:export const ROUTE_PATHS = { REPORTS: '/reports/:id' };
+src\case\paths.js:3:  return ROUTE_PATHS.REPORTS.replace(':id', String(id));
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'git diff HEAD~1...HEAD; rg --files -g AGENTS.md' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-OpbpZ1
+ exited 1 in 898ms:
+diff --git a/PR.md b/PR.md
+new file mode 100644
+index 0000000..9096097
+--- /dev/null
++++ b/PR.md
+@@ -0,0 +1,3 @@
++# Synthetic review case report-18-route-shape
++
++The route constant is a path string. A test contains an unrelated always-fallback ternary.
+diff --git a/spec/path.fixture.js b/spec/path.fixture.js
+new file mode 100644
+index 0000000..c6705bb
+--- /dev/null
++++ b/spec/path.fixture.js
+@@ -0,0 +1,4 @@
++import { reportUrl, ROUTE_PATHS } from '../src/case/paths.js';
++export function weakTest() {
++  return reportUrl('7').includes(ROUTE_PATHS.REPORTS.path ? ROUTE_PATHS.REPORTS.path : '/reports');
++}
+diff --git a/src/case/paths.js b/src/case/paths.js
+new file mode 100644
+index 0000000..827a272
+--- /dev/null
++++ b/src/case/paths.js
+@@ -0,0 +1,4 @@
++export const ROUTE_PATHS = { REPORTS: '/reports/:id' };
++export function reportUrl(id) {
++  return ROUTE_PATHS.REPORTS.replace(':id', String(id));
++}
+
+codex
+1. **Invalid.** [src/case/paths.js:1](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-OpbpZ1/src/case/paths.js:1) defines `REPORTS` as the string `'/reports/:id'`, so calling `.replace()` on line 3 is valid. Using `REPORTS.path` would instead yield `undefined`. The fixture’s `.path` check falls back to `'/reports'`; it does not establish that `REPORTS` is an object.
+
+Read only; no tests run or files changed.
+tokens used
+6,864

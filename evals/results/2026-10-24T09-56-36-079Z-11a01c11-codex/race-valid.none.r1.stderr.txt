@@ -1,0 +1,202 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-ePi1DH"))
+Reading additional input from stdin...
+2026-10-24T09:57:30.671534Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-DnbEbY
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d58-0f5e-7a30-809f-5fff8d7d469a
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/orders/create.ts:9 — the read then insert can race under concurrent requests; add a process-level lock.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-ePi1DH\config.toml.
+codex
+I’ll read the PR description and commit diff, then check whether the draft’s claim and proposed fix are supported.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "Get-Content PR.md; git diff HEAD~1 HEAD -- src/orders/create.ts; Get-Content src/orders/create.ts; rg --files -g AGENTS.md -g '*order*' -g '*schema*' -g '*migration*' -g package.json" in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-DnbEbY
+ succeeded in 1075ms:
+# PR: idempotent order creation
+
+Adds `createOrder` (src/orders/create.ts) and wires it to the API through
+`postOrder` (src/api/routes.ts). Base commit holds the schema and the test;
+head commit adds the two new files.
+diff --git a/src/orders/create.ts b/src/orders/create.ts
+new file mode 100644
+index 0000000..37acc29
+--- /dev/null
++++ b/src/orders/create.ts
+@@ -0,0 +1,10 @@
++import { orders } from './schema.ts';
++
++export async function createOrder(requestId: string) {
++  const existing = await orders.findOne({ requestId });
++  if (existing) return existing;
++
++  const order = { requestId, state: 'new' };
++  // A second worker may pass the read before either worker inserts.
++  return orders.insertOne(order);
++}
+import { orders } from './schema.ts';
+
+export async function createOrder(requestId: string) {
+  const existing = await orders.findOne({ requestId });
+  if (existing) return existing;
+
+  const order = { requestId, state: 'new' };
+  // A second worker may pass the read before either worker inserts.
+  return orders.insertOne(order);
+}
+src\orders\schema.ts
+spec\orders.fixture.ts
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "Get-Content src/orders/schema.ts; Get-Content src/api/routes.ts; Get-Content spec/orders.fixture.ts; git diff HEAD~1 HEAD; rg --files --hidden -g '"'! .git'"'" in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-DnbEbY
+ succeeded in 1016ms:
+export const orderSchema = {
+  requestId: { type: 'string', index: true },
+};
+
+export type Order = { requestId: string; state: string };
+
+// In-memory stand-in for the collection so the fixture can be executed by tests/fixture-oracle.test.mjs.
+// The requestId index is NOT unique: insertOne never rejects a duplicate.
+const rows: Order[] = [];
+export const orders = {
+  async findOne(query: { requestId: string }): Promise<Order | null> {
+    return rows.find((r) => r.requestId === query.requestId) ?? null;
+  },
+  async insertOne(order: Order): Promise<Order> {
+    rows.push(order);
+    return order;
+  },
+  async count(): Promise<number> {
+    return rows.length;
+  },
+  reset(): void {
+    rows.length = 0;
+  },
+};
+import { createOrder } from '../orders/create.ts';
+
+const orderInput = { requestId: 'uuid' };
+const validateBody = (_schema: unknown) => async (requestId: string) => {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)) throw new Error('Invalid UUID');
+  return createOrder(requestId);
+};
+export const postOrder = validateBody(orderInput);
+import { createOrder } from '../src/orders/create.ts';
+import { orders } from '../src/orders/schema.ts';
+
+// Sequential calls only: this does not exercise concurrent inserts.
+export async function happyPath(): Promise<number> {
+  orders.reset();
+  await createOrder('id-1');
+  await createOrder('id-1');
+  return orders.count();
+}
+diff --git a/PR.md b/PR.md
+new file mode 100644
+index 0000000..45c2b4c
+--- /dev/null
++++ b/PR.md
+@@ -0,0 +1,5 @@
++# PR: idempotent order creation
++
++Adds `createOrder` (src/orders/create.ts) and wires it to the API through
++`postOrder` (src/api/routes.ts). Base commit holds the schema and the test;
++head commit adds the two new files.
+diff --git a/src/api/routes.ts b/src/api/routes.ts
+new file mode 100644
+index 0000000..2fd5d69
+--- /dev/null
++++ b/src/api/routes.ts
+@@ -0,0 +1,8 @@
++import { createOrder } from '../orders/create.ts';
++
++const orderInput = { requestId: 'uuid' };
++const validateBody = (_schema: unknown) => async (requestId: string) => {
++  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)) throw new Error('Invalid UUID');
++  return createOrder(requestId);
++};
++export const postOrder = validateBody(orderInput);
+diff --git a/src/orders/create.ts b/src/orders/create.ts
+new file mode 100644
+index 0000000..37acc29
+--- /dev/null
++++ b/src/orders/create.ts
+@@ -0,0 +1,10 @@
++import { orders } from './schema.ts';
++
++export async function createOrder(requestId: string) {
++  const existing = await orders.findOne({ requestId });
++  if (existing) return existing;
++
++  const order = { requestId, state: 'new' };
++  // A second worker may pass the read before either worker inserts.
++  return orders.insertOne(order);
++}
+src\orders\schema.ts
+src\orders\create.ts
+PR.md
+src\api\routes.ts
+spec\orders.fixture.ts
+.git\refs\heads\main
+.git\config
+.git\COMMIT_EDITMSG
+.git\description
+.git\index
+.git\HEAD
+.git\hooks\update.sample
+.git\hooks\sendemail-validate.sample
+.git\hooks\push-to-checkout.sample
+.git\hooks\prepare-commit-msg.sample
+.git\hooks\pre-receive.sample
+.git\hooks\pre-rebase.sample
+.git\hooks\pre-push.sample
+.git\hooks\pre-merge-commit.sample
+.git\hooks\pre-commit.sample
+.git\hooks\pre-applypatch.sample
+.git\hooks\post-update.sample
+.git\hooks\fsmonitor-watchman.sample
+.git\hooks\commit-msg.sample
+.git\hooks\applypatch-msg.sample
+.git\logs\refs\heads\main
+.git\logs\HEAD
+.git\objects\4c\d680165917f076e8867684f6f82503dc6c7943
+.git\info\exclude
+.git\objects\d2\c4306a4235ab45a1fdf05dda8ab4783e3f234b
+.git\objects\69\3f3a3189d35ac3c2da540b260e29ea2c4e740d
+.git\objects\9a\a4aeb3299fc86c17a61a840d6c148460917fed
+.git\objects\f7\480f023734907e7dcd84040db9757276d547b1
+.git\objects\f2\04ae624ddcc1b42eeed88483371465cfa645b1
+.git\objects\37\acc298f8e38438a182190172e815e8e1d4d8bd
+.git\objects\63\c19081d20bce2c844088520a19577b75a4fc0c
+.git\objects\2f\d5d6927ba30120c0ee65fb3931128687c1445b
+.git\objects\44\ab6ac1a74734396d8063e52020825b3ff810a8
+.git\objects\45\c2b4cf48229f0115dc430fbff5f3c49c3b6f0e
+.git\objects\6f\87b32d72d2e565b98e41b81337e32729e00ba1
+.git\objects\3d\836d95e7de554d83622627bf66ce3be7c84871
+.git\objects\c3\f6cbfad996f9ad9aeef57d049150d13366d2dd
+.git\objects\36\cca5987d038510de38d25410965848fbc9e875
+
+codex
+1. **Needs rewording.** The race is real: `createOrder` awaits the lookup before inserting, so concurrent calls can both observe no order. `src/orders/schema.ts` explicitly has a nonunique index and accepts duplicate inserts. The fixture covers only sequential calls.
+
+   A process-level lock only coordinates callers within one process; it does not protect against separate workers.
+
+   Suggested comment:
+   > Concurrent requests with the same `requestId` can both pass the lookup and insert duplicate orders, breaking idempotency. Please enforce uniqueness at the storage layer and use an atomic create-or-return operation, or handle a duplicate insert by returning the existing order.
+
+Read-only review; no tests run.
+tokens used
+7,857

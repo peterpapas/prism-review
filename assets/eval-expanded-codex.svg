@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="865" viewBox="0 0 1200 865" role="img" aria-labelledby="title desc">
+  <title id="title">PRism versus no skill on forty synthetic review probes</title>
+  <desc id="desc">One Codex run per probe and arm. Strict regex grader passes: no skill 11 of 40, PRism 15 of 40. Pair outcomes: both 9, PRism only 6, no skill only 2, neither 23. Total CLI tokens: 250958 and 465272. Mean elapsed seconds: 19.5 and 31.6. Scores are wording-sensitive and are not accuracy rates.</desc>
+  <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0b1727"/><stop offset="1" stop-color="#132e3a"/></linearGradient>
+    <style>.eyebrow{font:700 15px Arial,sans-serif;letter-spacing:3px;fill:#77dfcf}.heading{font:700 34px Arial,sans-serif;fill:#eef7f9}.sub{font:18px Arial,sans-serif;fill:#b6ced9}.metric{font:700 18px Arial,sans-serif;fill:#e9f5f6}.scale{font:14px Arial,sans-serif;fill:#9cb9c8;text-anchor:end}.arm{font:700 17px Arial,sans-serif;fill:#e6f2f4}.value{font:700 18px Arial,sans-serif;fill:#f4f9fa}.tileNumber{font:700 36px Arial,sans-serif}.tileLabel{font:16px Arial,sans-serif;fill:#e6f2f4}.foot{font:15px Arial,sans-serif;fill:#c3d4dd}</style>
+  </defs>
+  <rect width="1200" height="865" rx="22" fill="url(#bg)"/>
+  <text x="64" y="55" class="eyebrow">EXPANDED CODEX COMPARISON</text>
+  <text x="64" y="98" class="heading">What changed with PRism?</text>
+  <text x="64" y="128" class="sub">40 synthetic probes · one run per arm · gpt-6.1-sol</text>
+  <g><rect x="64" y="156" width="1072" height="140" rx="14" fill="#142b3b" stroke="#2e4b5a"/>
+    <text x="88" y="185" class="metric">Strict rubric matches</text>
+    <text x="1098" y="185" class="scale">0–40 probes</text><text x="88" y="222" class="arm">No skill</text>
+      <rect x="344" y="203" width="548" height="24" rx="5" fill="#243c4b"/>
+      <rect x="344" y="203" width="151" height="24" rx="5" fill="#e9af80"/>
+      <text x="912" y="222" class="value">11/40</text>
+<text x="88" y="260" class="arm">PRism</text>
+      <rect x="344" y="241" width="548" height="24" rx="5" fill="#243c4b"/>
+      <rect x="344" y="241" width="206" height="24" rx="5" fill="#6fe0d0"/>
+      <text x="912" y="260" class="value">15/40</text></g>
+  <rect x="64" y="312" width="1072" height="179" rx="14" fill="#142b3b" stroke="#2e4b5a"/>
+  <text x="88" y="342" class="metric">Paired probe outcomes</text>
+  <text x="1098" y="342" class="scale">40 pairs total</text>
+  <g><rect x="88" y="387" width="244" height="89" rx="10" fill="#203b4a"/>
+    <text x="104" y="424" class="tileNumber" fill="#89b8d7">9</text>
+    <text x="158" y="424" class="tileLabel">Both passed</text></g>
+<g><rect x="349" y="387" width="244" height="89" rx="10" fill="#203b4a"/>
+    <text x="365" y="424" class="tileNumber" fill="#6fe0d0">6</text>
+    <text x="419" y="424" class="tileLabel">PRism only</text></g>
+<g><rect x="610" y="387" width="244" height="89" rx="10" fill="#203b4a"/>
+    <text x="626" y="424" class="tileNumber" fill="#e9af80">2</text>
+    <text x="680" y="424" class="tileLabel">No skill only</text></g>
+<g><rect x="871" y="387" width="244" height="89" rx="10" fill="#203b4a"/>
+    <text x="887" y="424" class="tileNumber" fill="#9a9ba9">23</text>
+    <text x="941" y="424" class="tileLabel">Neither passed</text></g>
+  <g><rect x="64" y="506" width="1072" height="140" rx="14" fill="#142b3b" stroke="#2e4b5a"/>
+    <text x="88" y="535" class="metric">Total CLI tokens</text>
+    <text x="1098" y="535" class="scale">0–500k</text><text x="88" y="572" class="arm">No skill</text>
+      <rect x="344" y="553" width="548" height="24" rx="5" fill="#243c4b"/>
+      <rect x="344" y="553" width="275" height="24" rx="5" fill="#e9af80"/>
+      <text x="912" y="572" class="value">250,958</text>
+<text x="88" y="610" class="arm">PRism</text>
+      <rect x="344" y="591" width="548" height="24" rx="5" fill="#243c4b"/>
+      <rect x="344" y="591" width="510" height="24" rx="5" fill="#6fe0d0"/>
+      <text x="912" y="610" class="value">465,272</text></g>
+  <g><rect x="64" y="656" width="1072" height="140" rx="14" fill="#142b3b" stroke="#2e4b5a"/>
+    <text x="88" y="685" class="metric">Mean elapsed time per probe</text>
+    <text x="1098" y="685" class="scale">0–40 s</text><text x="88" y="722" class="arm">No skill</text>
+      <rect x="344" y="703" width="548" height="24" rx="5" fill="#243c4b"/>
+      <rect x="344" y="703" width="267" height="24" rx="5" fill="#e9af80"/>
+      <text x="912" y="722" class="value">19.5 s</text>
+<text x="88" y="760" class="arm">PRism</text>
+      <rect x="344" y="741" width="548" height="24" rx="5" fill="#243c4b"/>
+      <rect x="344" y="741" width="433" height="24" rx="5" fill="#6fe0d0"/>
+      <text x="912" y="760" class="value">31.6 s</text></g>
+  <text x="64" y="832" class="foot">Strict regex rules are wording-sensitive. These counts are not review accuracy on live PRs.</text>
+  <text x="64" y="852" class="foot">Read the run notes for audited disagreements, setup, and limits.</text>
+</svg>

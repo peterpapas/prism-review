@@ -1,0 +1,29 @@
+# report-01-conditional-clear.prism.r1
+
+prompt:
+
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/case/connection.js:7 — the empty-connection branch clears by id only; a reconnect between read and write is wiped. Condition the absent state or skip the write.
+
+---
+
+Draft 1 **stands — Supported, P2**. When `db.get(id)` returns no connection, the selector becomes `{ id }`. If a reconnect saves a connection before `db.update`, the unconditional `$unset` removes it. The connection-ID guard on line 6 protects only the branch where a connection was initially present.
+
+Target: local repository `prism-eval-LN2IKP`, `HEAD~1...HEAD`, obtained with `git diff`. Both SHAs were rechecked and remained unchanged:
+
+- Base: `f501c5a25db4e367e0893c150e3e3dcf3695f2bd`
+- Head: `d7fba06dbc58fc2702f16440f820d59c46366348`
+
+Draft source: your one pasted comment; fully assessed. Read the complete function, `PR.md`, `src/case/context.js`, and repository guidance. No callers, database implementation, constraints, or tests are supplied, so database concurrency guarantees remain unknown. No additional findings or overall PR recommendation from this limited Gate. The referenced `references/example.md` is absent.
+
+Proposed test, **not run**: return a profile without a connection, save a new connection during `otherRead()`, then finish cleanup and assert the new connection remains. No files were edited or comments posted.
+
+**Suggested comments for the user to consider**
+
+1. **[P2] `src/case/connection.js:7` — Preserve connections created after the initial read.** When the initial profile has no connection, this branch selects only by `id`, so a reconnect before the final update is removed by `$unset`. Condition the update on the connection still being absent, or skip clearing when none was read. **Proof: Supported.**
+
+   Anchor: head-side line 7 is added in the current diff; GitHub inline acceptance was not checked.

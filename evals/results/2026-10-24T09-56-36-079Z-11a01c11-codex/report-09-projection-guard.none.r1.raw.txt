@@ -1,0 +1,1 @@
+1. **Resolved.** At draft commit `911918e`, the projection on line 2 included only `{ name: 1 }`, while the guard on line 4 read `project.accessType`. Current head `aac0b46` adds `accessType: 1` to that projection, fixing the omission. Do not post this comment.

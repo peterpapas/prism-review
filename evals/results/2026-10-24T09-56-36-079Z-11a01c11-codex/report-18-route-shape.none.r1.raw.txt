@@ -1,0 +1,3 @@
+1. **Invalid.** [src/case/paths.js:1](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-OpbpZ1/src/case/paths.js:1) defines `REPORTS` as the string `'/reports/:id'`, so calling `.replace()` on line 3 is valid. Using `REPORTS.path` would instead yield `undefined`. The fixture’s `.path` check falls back to `'/reports'`; it does not establish that `REPORTS` is an object.
+
+Read only; no tests run or files changed.

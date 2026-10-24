@@ -1,0 +1,27 @@
+# report-09-projection-guard.prism.r1
+
+prompt:
+
+The pull request is the commit range HEAD~1...HEAD in this repository. The draft was written at 6495df8d9fca265231c82016eb2c04143f8c90ae; current head is 048d1346a357b8b11152f547f97c217db5faf914. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/case/invite.js:4 — the invite guard reads accessType, but the projection excludes it.
+
+---
+
+Draft 1 — **Resolved.** The projection omission existed at the draft commit and has been fixed.
+
+- **Before**, at `6495df8d9fca265231c82016eb2c04143f8c90ae`, line 2 selected only `{ name: 1 }`, while line 4 read `project.accessType`.
+- **Now**, at `048d1346a357b8b11152f547f97c217db5faf914`, [src/case/invite.js:2](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-LN3wOE/src/case/invite.js:2) selects `{ name: 1, accessType: 1 }`. The guard therefore requests the field it reads. Evidence outcome for the current omission claim: **Disproved**.
+
+The local repository’s `HEAD~1...HEAD` diff was obtained with Git; both SHAs were re-read and remained unchanged. Reviewed the complete `canInvite` function, its historical version, `context.js`, and `PR.md`. The supplied draft was the sole draft assessed; remote drafts and threads were not examined.
+
+**No supported findings in the material examined.** Coverage was limited to this draft, so no overall PR recommendation is offered. No open questions affect its disposition.
+
+Proposed verification, not run: return an `invite-only` project through a projection-respecting database stub and assert that `canInvite` returns `false`. No files were edited, tests run, or comments posted.
+
+**Suggested comments for the user to consider**
+
+None. Omit draft 1 because the current revision fixes it.

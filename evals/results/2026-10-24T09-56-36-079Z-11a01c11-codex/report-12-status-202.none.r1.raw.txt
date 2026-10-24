@@ -1,0 +1,3 @@
+1. **Needs rewording.** [remove.js:5](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-r5EbWM/src/case/remove.js:5) maps every status below 500 except 200 to 202, including failures such as 401 and 403. A 202 therefore does not establish successful removal. [PR.md:3](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-r5EbWM/PR.md:3) specifically identifies 404 as the already-deleted case.
+
+   Suggested comment: “Handle provider 404 as successful removal because the association is already gone, avoiding the manual-repair error log for that case. Preserve failure handling for other statuses rather than treating every mapped 202 as success.”

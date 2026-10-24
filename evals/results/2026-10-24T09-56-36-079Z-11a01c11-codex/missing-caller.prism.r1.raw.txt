@@ -1,0 +1,17 @@
+Draft 1 — **Invalid. Evidence: Disproved at this snapshot.**
+
+`src/billing/charge.ts` exists in neither base nor head, and the repository contains no `charge()` call or billing implementation. The actual path is `postOrder` → `createOrder` → `orders.insertOne`; it performs no billing. There is no evidence that this draft describes an issue fixed by the range.
+
+An incidental finding surfaced while tracing persistence:
+
+[P2] src/orders/create.ts:9 — Concurrent requests with the same request ID can create duplicate orders, violating the advertised idempotency. Evidence: both calls can finish `findOne` before either inserts; `src/orders/schema.ts:14` unconditionally appends, and the request ID index is not unique. The fixture checks only sequential calls. Fix: make creation atomic per request ID. Proof: **Supported**, not executed.
+
+Target: local repository `<LOCAL_HOME>\AppData\Local\Temp\prism-eval-9Spv7m`, `HEAD~1...HEAD`, obtained with `git diff`. Base `97551d41f83553cf06bd11bd2e6ee80d19cd31f3`; head `6ac4c72183605eb6641f268dd79573a062fceab4`. Both were rechecked and remained unchanged.
+
+Coverage: read PR.md, both added source files, the schema, and the complete fixture, including base versions. The single pasted draft was fully assessed; remote threads and external consumers were not examined. No files were edited, tests run, or comments posted. The referenced worked example was unavailable. No overall PR recommendation is offered because this was a scoped Gate.
+
+Proposed test, not run: reset orders, concurrently call `createOrder` twice with the same valid UUID, then assert one stored order. No open questions affect the draft’s disposition.
+
+**Suggested comments for the user to consider**
+
+1. `src/orders/create.ts:9` — “Two concurrent requests with the same request ID can both pass `findOne` before either inserts. Since `insertOne` unconditionally appends and the index is not unique, this creates duplicate orders. Could creation be made atomic per request ID?” This is an added head-side line in the current local diff; GitHub inline acceptance was not checked.

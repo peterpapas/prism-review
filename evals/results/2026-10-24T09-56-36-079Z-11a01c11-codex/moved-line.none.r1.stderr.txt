@@ -1,0 +1,109 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-1uNs4y"))
+Reading additional input from stdin...
+2026-10-24T10:03:31.415100Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-ASaRrA
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d5d-90e9-7ee1-a4ee-19dd7cc455ea
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. The draft was written at 0a19a302ae80871acc4cc88f05eb635c87b3af96; current head is 6b9c762deadd1c14f49cf31a2f6893a5187f6937. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/orders/create.ts:9 — the read then insert can race.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-1uNs4y\config.toml.
+codex
+I’ll read the PR description and compare the draft and current commits to check whether the race comment still applies.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "Get-Content PR.md; git status --short; git diff HEAD~1...HEAD -- src/orders/create.ts; git show 0a19a302ae80871acc4cc88f05eb635c87b3af96:src/orders/create.ts; git show 6b9c762deadd1c14f49cf31a2f6893a5187f6937:src/orders/create.ts; rg --files -g AGENTS.md -g '*order*' -g '*schema*' -g '*migration*'" in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-ASaRrA
+ succeeded in 1240ms:
+# PR: move order creation comments
+
+The head adds explanatory comments above createOrder. The read then insert logic
+is unchanged, so draft locations from the prior revision need new anchors.
+fatal: this operation must be run in a work tree
+diff --git a/src/orders/create.ts b/src/orders/create.ts
+index 250b394..c3751fd 100644
+--- a/src/orders/create.ts
++++ b/src/orders/create.ts
+@@ -1,3 +1,8 @@
++// Order creation is shared by the API and retry worker.
++// Keep the requestId stable across retries.
++// The collection index is declared in schema.ts.
++// Callers expect the same order for repeated requests.
++// These comments shifted the original review anchor.
+ import { orders } from './schema.ts';
+ 
+ export async function createOrder(requestId: string) {
+import { orders } from './schema.ts';
+
+export async function createOrder(requestId: string) {
+  const existing = await orders.findOne({ requestId });
+  if (existing) return existing;
+
+  const order = { requestId };
+  // The insert is not atomic with the read.
+  return orders.insertOne(order);
+}
+// Order creation is shared by the API and retry worker.
+// Keep the requestId stable across retries.
+// The collection index is declared in schema.ts.
+// Callers expect the same order for repeated requests.
+// These comments shifted the original review anchor.
+import { orders } from './schema.ts';
+
+export async function createOrder(requestId: string) {
+  const existing = await orders.findOne({ requestId });
+  if (existing) return existing;
+
+  const order = { requestId };
+  // The insert is not atomic with the read.
+  return orders.insertOne(order);
+}
+src\orders\schema.ts
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "git show HEAD:src/orders/schema.ts; git ls-tree -r --name-only HEAD; git log -2 --format='%H %s'; git show HEAD:src/orders/create.ts" in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-ASaRrA
+ succeeded in 1083ms:
+export const orderSchema = { requestId: { type: 'string', index: true } };
+export const orders = {
+  async findOne(_query: { requestId: string }) { return null; },
+  async insertOne(order: { requestId: string }) { return order; },
+};
+PR.md
+src/orders/create.ts
+src/orders/schema.ts
+6b9c762deadd1c14f49cf31a2f6893a5187f6937 head: changed code
+0a19a302ae80871acc4cc88f05eb635c87b3af96 base: pre-review code
+// Order creation is shared by the API and retry worker.
+// Keep the requestId stable across retries.
+// The collection index is declared in schema.ts.
+// Callers expect the same order for repeated requests.
+// These comments shifted the original review anchor.
+import { orders } from './schema.ts';
+
+export async function createOrder(requestId: string) {
+  const existing = await orders.findOne({ requestId });
+  if (existing) return existing;
+
+  const order = { requestId };
+  // The insert is not atomic with the read.
+  return orders.insertOne(order);
+}
+
+codex
+1. **Needs rewording** — The read then insert remains unchanged; the original insert anchor moved from line 9 to [line 14](src/orders/create.ts:14). Concurrent calls can both pass the lookup at line 9 and reach insertion. The schema declares `index: true`, with no uniqueness constraint.
+
+   Suggested wording: “Concurrent calls with the same `requestId` can both pass this lookup and reach insertion. Could creation enforce idempotency atomically?”
+
+   Caveat: `schema.ts` contains stub methods with no persistence, so actual duplicate stored orders cannot be verified from this repository.
+tokens used
+4,217

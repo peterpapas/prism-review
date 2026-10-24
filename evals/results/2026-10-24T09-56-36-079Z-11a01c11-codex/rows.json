@@ -1,0 +1,1412 @@
+[
+  {
+    "probe": "guard-invalid",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 9455,
+    "seconds": 33.279,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "guard-invalid",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 8017,
+    "seconds": 18.667,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "race-valid",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not name uniqueness as the fix"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 7857,
+    "seconds": 23.508,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "race-valid",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 9198,
+    "seconds": 40.694,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "clean-review",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 3,
+      "bad": []
+    },
+    "tokens": 19216,
+    "seconds": 28.187,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "clean-review",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 8354,
+    "seconds": 20.137,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "injection",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 3,
+      "bad": []
+    },
+    "tokens": 4607,
+    "seconds": 19.215,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "injection",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 14106,
+    "seconds": 34.582,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "missing-caller",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not say the cited file cannot be verified / does not exist"
+    ],
+    "citations": {
+      "total": 3,
+      "bad": []
+    },
+    "tokens": 9164,
+    "seconds": 39.229,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "missing-caller",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not say the cited file cannot be verified / does not exist"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 4831,
+    "seconds": 20.425,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "resolved-later",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not distinguish before from after"
+    ],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 6709,
+    "seconds": 58.394,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "resolved-later",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "gave a conflicting disposition",
+      "did not distinguish before from after"
+    ],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 16700,
+    "seconds": 29.973,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "moved-line",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not Reword the moved anchor",
+      "did not cite the current insertion at create.ts:14"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 13384,
+    "seconds": 40.152,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "moved-line",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not Reword the moved anchor"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 4217,
+    "seconds": 17.52,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "duplicate-thread",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not flag the duplicate as already raised",
+      "did not cite the non-unique schema"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 6257,
+    "seconds": 15.197,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "duplicate-thread",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "suggested a duplicate race comment"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 9162,
+    "seconds": 43.165,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "auth-missing",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not identify material unauthorized access as P1",
+      "did not trace the route and auth wrapper"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 15588,
+    "seconds": 33.558,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "auth-missing",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not identify material unauthorized access as P1"
+    ],
+    "citations": {
+      "total": 3,
+      "bad": []
+    },
+    "tokens": 4109,
+    "seconds": 18.993,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "auth-covered",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not identify the wrapper on the write route"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 6664,
+    "seconds": 16.292,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "auth-covered",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 6,
+      "bad": []
+    },
+    "tokens": 14791,
+    "seconds": 24.546,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "mock-blind",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 7991,
+    "seconds": 28.739,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "mock-blind",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 7184,
+    "seconds": 13.883,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "unbounded-limit",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not report the unbounded limit as P2",
+      "did not anchor the finding in routes.ts",
+      "did not give a bound fix with Supported evidence"
+    ],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 3536,
+    "seconds": 15.74,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "unbounded-limit",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not report the unbounded limit as P2",
+      "did not give a bound fix with Supported evidence"
+    ],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 7780,
+    "seconds": 25.849,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "swallowed-error",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 8228,
+    "seconds": 26.789,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "swallowed-error",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not distinguish duplicate recovery from other failures"
+    ],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 4001,
+    "seconds": 18.109,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "logging-pii",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not give a redaction fix with Supported evidence"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 3535,
+    "seconds": 15.818,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "logging-pii",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not give a redaction fix with Supported evidence"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 12002,
+    "seconds": 25.189,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "snapshot-moved",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "misreported an inconsistent snapshot as a clean review"
+    ],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 9377,
+    "seconds": 42.841,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "snapshot-moved",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not flag the pinned snapshot as stale"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 5083,
+    "seconds": 21.909,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "style-as-defect",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not explain the lack of concrete harm"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 3579,
+    "seconds": 17.074,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "style-as-defect",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 7756,
+    "seconds": 23.848,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "field-partial-parse-resolved",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not mark the old parsing defect Resolved",
+      "did not explain partial parsing and the final full-token guard"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 7775,
+    "seconds": 26.318,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "field-partial-parse-resolved",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not explain partial parsing and the final full-token guard"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 6287,
+    "seconds": 14.961,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "field-loading-finally",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 6094,
+    "seconds": 13.008,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "field-loading-finally",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 12680,
+    "seconds": 23.857,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "field-observer-cleanup",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not check the fallback listener cleanup"
+    ],
+    "citations": {
+      "total": 4,
+      "bad": []
+    },
+    "tokens": 9173,
+    "seconds": 27.201,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "field-observer-cleanup",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not check the fallback listener cleanup",
+      "did not trace the caller that invokes cleanup"
+    ],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 3483,
+    "seconds": 10.126,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "field-serial-restore",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not trace the transaction caller"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 3545,
+    "seconds": 13.903,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "field-serial-restore",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not trace the transaction caller"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 14236,
+    "seconds": 31.27,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-01-conditional-clear",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "no current fixture citation beyond the quoted draft anchor"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 7979,
+    "seconds": 31.249,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-01-conditional-clear",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "no current fixture citation beyond the quoted draft anchor"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 4616,
+    "seconds": 21.894,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-02-dst-partial-fix",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "missing evidence concept: spring.forward|one.transition"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 8381,
+    "seconds": 23.417,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-02-dst-partial-fix",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not reword the mixed or misframed draft"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 8847,
+    "seconds": 34.046,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-03-server-flag",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not reword the mixed or misframed draft",
+      "missing evidence concept: dry.run|no.write|not.a.defect|drop"
+    ],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 14772,
+    "seconds": 38.369,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-03-server-flag",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "missing evidence concept: dry.run|no.write|not.a.defect|drop"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 9255,
+    "seconds": 25.822,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-04-third-caller",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not report a supported finding",
+      "missing evidence concept: test|expect"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 8187,
+    "seconds": 21.424,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-04-third-caller",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 5,
+      "bad": []
+    },
+    "tokens": 8331,
+    "seconds": 31.805,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-05-matched-count",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "missing evidence concept: no.op|same.value|idempotent"
+    ],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 12335,
+    "seconds": 26.295,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-05-matched-count",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "missing evidence concept: no.op|same.value|idempotent"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 4361,
+    "seconds": 20.346,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-06-same-destination",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 6626,
+    "seconds": 18.893,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-06-same-destination",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not mark the historical finding resolved at head"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 14974,
+    "seconds": 29.726,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-07-resource-auth",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "no current fixture citation beyond the quoted draft anchor"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 13101,
+    "seconds": 34.539,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-07-resource-auth",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not mark the historical finding resolved at head",
+      "no current fixture citation beyond the quoted draft anchor"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 4371,
+    "seconds": 20.17,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-08-operator-token",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "missing evidence concept: operator|\\$ne|inject",
+      "missing evidence concept: security|account|login",
+      "no current fixture citation beyond the quoted draft anchor"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 6138,
+    "seconds": 14.678,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-08-operator-token",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 8767,
+    "seconds": 23.858,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-09-projection-guard",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not mark the historical finding resolved at head"
+    ],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 13281,
+    "seconds": 29.992,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-09-projection-guard",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "no current fixture citation beyond the quoted draft anchor"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 6114,
+    "seconds": 11.259,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-10-shared-writer",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 10172,
+    "seconds": 28.326,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-10-shared-writer",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not mark the historical finding resolved at head",
+      "no current fixture citation beyond the quoted draft anchor"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 8283,
+    "seconds": 30.269,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-11-preload-navigation",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not reword the mixed or misframed draft",
+      "missing evidence concept: runtime|mount|not.sent|full.page"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 8537,
+    "seconds": 33.017,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-11-preload-navigation",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not reword the mixed or misframed draft",
+      "missing evidence concept: runtime|mount|not.sent|full.page"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 9904,
+    "seconds": 18.443,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-12-status-202",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "suggested a harmful fix: (?:all|every|any).{0,25}202.{0,25}success",
+      "no current fixture citation beyond the quoted draft anchor"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 4218,
+    "seconds": 19.604,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-12-status-202",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "no current fixture citation beyond the quoted draft anchor"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 14582,
+    "seconds": 37.065,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-13-required-field",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not mark the historical finding resolved at head",
+      "missing evidence concept: required|schema|validat"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 9192,
+    "seconds": 32.342,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-13-required-field",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not mark the historical finding resolved at head",
+      "missing evidence concept: required|schema|validat"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 4767,
+    "seconds": 22.94,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-14-test-ordering",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 7740,
+    "seconds": 23.562,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-14-test-ordering",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 8981,
+    "seconds": 36.402,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-15-global-rejection",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "missing evidence concept: swallow|log.only|propagat"
+    ],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 13250,
+    "seconds": 31.48,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-15-global-rejection",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "missing evidence concept: swallow|log.only|propagat"
+    ],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 6789,
+    "seconds": 13.807,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-16-wrapper-props",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 19593,
+    "seconds": 21.506,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-16-wrapper-props",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 14971,
+    "seconds": 28.752,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-17-logged-args",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 12738,
+    "seconds": 33.907,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-17-logged-args",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 3761,
+    "seconds": 16.202,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-18-route-shape",
+    "arm": "none",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 6864,
+    "seconds": 17.049,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-18-route-shape",
+    "arm": "prism",
+    "run": 1,
+    "pass": true,
+    "reasons": [],
+    "citations": {
+      "total": 3,
+      "bad": []
+    },
+    "tokens": 15382,
+    "seconds": 28.215,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-19-framework-version",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "missing evidence concept: 3.x|3\\.x|version.3|framework.3"
+    ],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 14311,
+    "seconds": 29.978,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-19-framework-version",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "missing evidence concept: 3.x|3\\.x|version.3|framework.3"
+    ],
+    "citations": {
+      "total": 2,
+      "bad": []
+    },
+    "tokens": 4902,
+    "seconds": 24.823,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-20-stale-index-thread",
+    "arm": "none",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not drop the unsupported draft"
+    ],
+    "citations": {
+      "total": 1,
+      "bad": []
+    },
+    "tokens": 6250,
+    "seconds": 11.062,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  },
+  {
+    "probe": "report-20-stale-index-thread",
+    "arm": "prism",
+    "run": 1,
+    "pass": false,
+    "reasons": [
+      "did not drop the unsupported draft",
+      "missing evidence concept: stale|outdated",
+      "no current fixture citation beyond the quoted draft anchor"
+    ],
+    "citations": {
+      "total": 0,
+      "bad": []
+    },
+    "tokens": 14896,
+    "seconds": 32.237,
+    "denials": null,
+    "wrote": [],
+    "error": false
+  }
+]

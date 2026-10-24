@@ -1,0 +1,17 @@
+Draft 1 — **Invalid.** The claim “Resolved: setting wall-clock fields fixes both daylight-saving transitions” is contradicted by the fall-back path.
+
+With `now = 2024-11-03T06:10:00Z` and `stepMinutes = 15`, lines 8–11 map the second 01:10 to a candidate at `05:00Z`. Line 12 advances to `05:15Z`, which is still before `now`, and line 13 returns it. This is a **Supported** failure traced from code, not executed. Spring-forward correctness cannot be established from this fixture.
+
+Target: local repository `prism-eval-lOt67k`, range `HEAD~1...HEAD`, obtained using `git diff`.
+
+- Base: `1222549447910b7458be14af3471c7e38aaf067d`
+- Head: `2cbcbffea3b2bf4cd18ddaf40db05ad65811714c`
+- Both SHAs re-read and unchanged before reporting.
+
+Coverage: checked the complete scheduling module, `context.js`, `PR.md`, repository guidance, and base tree. The single pasted draft was fully assessed. No test files or callers are supplied; the test mentioned in `PR.md`, prior implementation, and spring-forward behavior remain unverified. The referenced example report is absent. No broader review or overall approval recommendation is offered.
+
+Proposed test, **not run**: call `nextRow` with the input above and assert `2024-11-03T06:15:00Z`. The traced implementation instead returns `05:15Z`. No files were edited and nothing was posted.
+
+**Suggested comments for the user to consider**
+
+1. **[P2] src/case/schedule.js:12 — Fall-back scheduling can return a past instant.** During the second 01:10 (`06:10Z`), a 15-minute step resolves both candidates to the first occurrence and returns `05:15Z`. Evidence: `wallToInstant` always selects the first repeated hour, and the single retry does not ensure the result reaches `now`. Fix: account for the second occurrence when selecting the next row. Proof: **Supported**. Anchor: head/right line 12, present in the current diff.

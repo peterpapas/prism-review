@@ -1,0 +1,3 @@
+1. **Invalid.** `spec/orders.fixture.ts:6` replaces `insertOne` with a stub, and line 8 calls `createOrder` only once. It exercises neither concurrent duplicate requests nor real persistence, so it cannot justify dropping the race concern. `src/orders/create.ts:3–5` still performs a separate lookup followed by an insert.
+
+   Suggested replacement: “This fixture bypasses persistence and makes only one call, so it does not establish safety for concurrent duplicate requests.”

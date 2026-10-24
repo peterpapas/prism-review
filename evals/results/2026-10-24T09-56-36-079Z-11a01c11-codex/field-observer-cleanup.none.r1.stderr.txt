@@ -1,0 +1,74 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-pM0us6"))
+Reading additional input from stdin...
+2026-10-24T10:12:56.093495Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-vZRXBG
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d66-2eec-7012-ba9b-df57d8f0cd1e
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/ui/sectionTracker.ts:7 — the observer is never disconnected when the tracker stops.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-pM0us6\config.toml.
+codex
+I’ll read the PR description and diff, then check the tracker’s cleanup path against the drafted comment.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git diff HEAD~1...HEAD -- src/ui/sectionTracker.ts; Get-Content src/ui/sectionTracker.ts; rg --files -g AGENTS.md' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-vZRXBG
+ exited 1 in 1197ms:
+# PR: support section tracking without IntersectionObserver
+
+The existing observer branch now sits next to a scroll-listener fallback.
+Both branches return cleanup functions; the caller invokes the returned
+function when the component stops tracking.
+diff --git a/src/ui/sectionTracker.ts b/src/ui/sectionTracker.ts
+index 24d8e09..cce9ea4 100644
+--- a/src/ui/sectionTracker.ts
++++ b/src/ui/sectionTracker.ts
+@@ -1,7 +1,14 @@
+ export interface Observer { observe(target: object): void; disconnect(): void }
++export interface ScrollEvents { add(handler: () => void): void; remove(handler: () => void): void }
+ 
+-export function startTracking(target: object, makeObserver: () => Observer): () => void {
+-  const observer = makeObserver();
+-  observer.observe(target);
+-  return () => observer.disconnect();
++export function startTracking(target: object, makeObserver: (() => Observer) | null, scroll: ScrollEvents): () => void {
++  if (makeObserver) {
++    const observer = makeObserver();
++    observer.observe(target);
++    return () => observer.disconnect();
++  }
++
++  const measure = () => { void target; };
++  scroll.add(measure);
++  return () => scroll.remove(measure);
+ }
+export interface Observer { observe(target: object): void; disconnect(): void }
+export interface ScrollEvents { add(handler: () => void): void; remove(handler: () => void): void }
+
+export function startTracking(target: object, makeObserver: (() => Observer) | null, scroll: ScrollEvents): () => void {
+  if (makeObserver) {
+    const observer = makeObserver();
+    observer.observe(target);
+    return () => observer.disconnect();
+  }
+
+  const measure = () => { void target; };
+  scroll.add(measure);
+  return () => scroll.remove(measure);
+}
+
+codex
+1. **Invalid.** [src/ui/sectionTracker.ts:8](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-vZRXBG/src/ui/sectionTracker.ts:8) returns `() => observer.disconnect()`. This cleanup existed before the PR and remains in the observer branch. PR.md states that the caller invokes the returned function when tracking stops.
+tokens used
+3,483

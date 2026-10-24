@@ -147,7 +147,7 @@ The repo ships a small paired harness: the same headless agent runs each probe w
 
 ```bash
 npm test                                   # skill structure + grader self-tests, no API key
-node evals/run.mjs                         # claude -p, arms none + prism, all 16 probes
+node evals/run.mjs                         # claude -p, arms none + prism, all 40 probes
 node evals/run.mjs --agent codex           # same probes through codex exec
 node evals/run.mjs --probes injection --arms prism --runs 3
 ```
@@ -165,6 +165,17 @@ node evals/run.mjs --probes injection --arms prism --runs 3
 
 Every run also counts invented `path:line` citations, workspace changes, and tool denials (Claude only). Output goes to `evals/results/<timestamp>-<agent>/` with each cell's final output and a `summary.md`. The [evaluation plan](evals/README.md) explains what each tier can and cannot establish. Read a run's `NOTES.md` before comparing its numbers.
 
+### Expanded paired comparison · 40 probes
+
+<p align="center">
+  <img src="assets/eval-expanded-codex.svg" alt="Forty synthetic probes, one run per arm: strict regex rubric matches were 11 of 40 without PRism and 15 of 40 with PRism. Nine pairs passed in both arms, six only with PRism, two only without, and 23 in neither. Total CLI tokens were 250,958 versus 465,272; mean time per probe was 19.5 versus 31.6 seconds. These are rubric matches, not review accuracy rates." width="900">
+</p>
+
+The same `gpt-6.1-sol` Codex agent reviewed each fixture once per arm in fresh read-only workspaces. PRism was supplied as instructions in `AGENTS.md`. The strict rubric favored PRism **15/40 to 11/40**, but a targeted audit of all eight score-discordant pairs found the **same core review call in both arms**. PRism gave more complete evidence in some cases; several score differences came from exact-wording and citation checks. Among probes that failed in both arms, the rubric also rejected clear correct answers, and a few tiny fixtures do not support their required severity. The scores therefore do **not** show an accuracy gain. PRism used **1.85× the CLI tokens** and **1.62× the time** in this one-run setup. Read the [run notes and audit](evals/results/2026-10-24T09-56-36-079Z-11a01c11-codex/NOTES.md), [per-probe scores](evals/results/2026-10-24T09-56-36-079Z-11a01c11-codex/summary.md), and [saved rows](evals/results/2026-10-24T09-56-36-079Z-11a01c11-codex/rows.json). Regenerate the chart with `node evals/render-expanded-chart.mjs`.
+
+<details>
+<summary>Earlier five-probe Codex pilot</summary>
+
 ### Clean no-skill comparison · Codex pilot
 
 <p align="center">
@@ -172,6 +183,8 @@ Every run also counts invented `path:line` citations, workspace changes, and too
 </p>
 
 This comparison ran **gpt-6.1-sol**, not Claude Sonnet: Claude's local CLI could not authenticate for a new run. Each arm had the same model, fixtures, sandbox and task prompt; only the PRism text differed. It was supplied as `AGENTS.md`, so this measures the instructions rather than automatic skill discovery. Across five synthetic probes repeated three times, PRism surfaced the fixture's supported concurrency defect as a **new** comment in five of six draft gates about another issue; the no-skill arm did so in none. This count was defined after seeing the outputs. The lower PRism strict-grader score is largely due to exact-wording checks that rejected sound answers; it is **not a correctness rate**. PRism used more CLI tokens and time. [Read the run notes and failed-output audit](evals/results/2026-10-23T00-02-02-333Z-6869b71f-codex/NOTES.md), [summary](evals/results/2026-10-23T00-02-02-333Z-6869b71f-codex/summary.md), and [rows](evals/results/2026-10-23T00-02-02-333Z-6869b71f-codex/rows.json). Regenerate the chart with `node evals/render-clean-chart.mjs`.
+
+</details>
 
 <details>
 <summary>Earlier Claude pilot · contaminated baseline</summary>

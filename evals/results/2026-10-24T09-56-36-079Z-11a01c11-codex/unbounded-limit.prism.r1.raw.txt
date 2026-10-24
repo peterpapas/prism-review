@@ -1,0 +1,14 @@
+**No supported findings in the material examined.**
+
+Reviewed the complete `HEAD~1...HEAD` diff, PR.md, and the collection implementation:
+
+- [src/api/routes.ts:4](src/api/routes.ts#L4) converts the supplied limit and passes it to `findMany`.
+- [src/orders/schema.ts:2](src/orders/schema.ts#L2) simply returns that number. The code does not support claims of unbounded database reads or resource exhaustion.
+
+Snapshot: `3e792bba2b14d1185b8d0b60d7ef3d3d411adb14` → `9ccf5a1a7c4a6fe3827238ee1c42be6c4c6f13de`, obtained with `git diff HEAD~1...HEAD`; both SHAs were rechecked unchanged.
+
+Coverage is limited to this local repository. No callers, routing integration, validation contract, or tests are present, so their expected behavior remains unknown. No drafts were supplied. No tests were run or proposed without an established contract.
+
+**Suggested comments for the user to consider**
+
+None.

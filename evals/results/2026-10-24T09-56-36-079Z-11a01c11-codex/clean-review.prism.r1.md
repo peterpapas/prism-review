@@ -1,0 +1,27 @@
+# clean-review.prism.r1
+
+prompt:
+
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Review this pull request for defects. Report only what the code supports, with path:line citations. If there is nothing actionable, say so.
+
+---
+
+**No supported findings in the material examined.**
+
+Reviewed local `HEAD~1...HEAD`, obtained with `git diff`:
+- Base: `a7fc5b67eccc2ae093cad7488593441b465050de`
+- Head: `32469a49e07c3b7e543500c5c6da523cfe55796d`
+
+Both SHAs were rechecked and remained unchanged.
+
+Read all three changed files, the complete collection implementation, and the concurrency fixture. The unique check in `src/orders/schema.ts:19` prevents duplicate inserts; the handler in `src/orders/create.ts:13` retrieves the persisted order. The API validates UUID syntax before calling creation at `src/api/routes.ts:5`.
+
+Coverage is limited to this repository’s in-memory implementation and visible callers. No external database adapter or HTTP integration was available. No drafts were supplied; this was a fresh review.
+
+Tests were not run. A useful additional check would assert that concurrent calls return the same order, beyond the fixture’s row-count check. No unresolved defect questions remain.
+
+**Suggested comments for the user to consider**
+
+None.

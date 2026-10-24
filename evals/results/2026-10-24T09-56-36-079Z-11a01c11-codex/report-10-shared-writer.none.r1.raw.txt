@@ -1,0 +1,3 @@
+1. **Resolved — do not post.** At draft commit `72b1730`, `addActivity` used `message.createdAt`, and the edit caller passes the original message. Current HEAD `c305504` changes the timestamp to `now` in [activity.js:2](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-HKajWk/src/case/activity.js:2), which [edit.js:3](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-HKajWk/src/case/edit.js:3) forwards. The old message’s creation time no longer determines the activity timestamp.
+
+Only read operations were performed; no tests, edits, or posts.

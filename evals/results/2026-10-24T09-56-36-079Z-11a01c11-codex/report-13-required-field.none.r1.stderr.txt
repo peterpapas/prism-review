@@ -1,0 +1,107 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-tN9Iku"))
+Reading additional input from stdin...
+2026-10-24T10:25:04.553970Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-MWvP0c
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d71-4c86-7660-91c1-68f88395b065
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. The draft was written at c6141cb800c03e71b6713cae659b42d146f56021; current head is 300967ab267cf0d8e7f0d42ad706911f47c419c3. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/case/refresh.js:3 — trivial: test that lastActivity is absent after the last activity is removed.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-tN9Iku\config.toml.
+codex
+I’ll read the PR description and compare the draft commit with the current head to check whether the comment still applies.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "Get-Content PR.md; git status --short; git diff HEAD~1 HEAD -- src/case/refresh.js; git show c6141cb800c03e71b6713cae659b42d146f56021:src/case/refresh.js; Get-Content src/case/refresh.js; rg --files -g AGENTS.md -g '*refresh*' -g '*case*'" in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-MWvP0c
+ succeeded in 1284ms:
+# Synthetic review case report-13-required-field
+
+The collection requires lastActivity on every validated update. The earlier unset failed validation. The final push sets a valid created-event fallback.
+fatal: this operation must be run in a work tree
+diff --git a/src/case/refresh.js b/src/case/refresh.js
+index d4e4835..bc61916 100644
+--- a/src/case/refresh.js
++++ b/src/case/refresh.js
+@@ -1,4 +1,4 @@
+ export async function refreshActivity(groupId, latest, groups) {
+   if (latest) return groups.update(groupId, { $set: { lastActivity: latest } });
+-  return groups.update(groupId, { $unset: { lastActivity: 1 } });
++  return groups.update(groupId, { $set: { lastActivity: { kind: 'created' } } });
+ }
+export async function refreshActivity(groupId, latest, groups) {
+  if (latest) return groups.update(groupId, { $set: { lastActivity: latest } });
+  return groups.update(groupId, { $unset: { lastActivity: 1 } });
+}
+export async function refreshActivity(groupId, latest, groups) {
+  if (latest) return groups.update(groupId, { $set: { lastActivity: latest } });
+  return groups.update(groupId, { $set: { lastActivity: { kind: 'created' } } });
+}
+src\case\refresh.js
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "rg --files --hidden -g '"'!.git/**'"'; git log -3 --oneline; git diff HEAD~1 HEAD; rg -n --hidden -g '"'!.git/**'"' 'lastActivity|required|validate|created' ." in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-MWvP0c
+ succeeded in 1005ms:
+PR.md
+src\case\store.js
+src\case\refresh.js
+src\case\context.js
+300967a head: changed code
+c6141cb base: pre-review code
+diff --git a/PR.md b/PR.md
+new file mode 100644
+index 0000000..59a4798
+--- /dev/null
++++ b/PR.md
+@@ -0,0 +1,3 @@
++# Synthetic review case report-13-required-field
++
++The collection requires lastActivity on every validated update. The earlier unset failed validation. The final push sets a valid created-event fallback.
+diff --git a/src/case/refresh.js b/src/case/refresh.js
+index d4e4835..bc61916 100644
+--- a/src/case/refresh.js
++++ b/src/case/refresh.js
+@@ -1,4 +1,4 @@
+ export async function refreshActivity(groupId, latest, groups) {
+   if (latest) return groups.update(groupId, { $set: { lastActivity: latest } });
+-  return groups.update(groupId, { $unset: { lastActivity: 1 } });
++  return groups.update(groupId, { $set: { lastActivity: { kind: 'created' } } });
+ }
+.\PR.md:1:# Synthetic review case report-13-required-field
+.\PR.md:3:The collection requires lastActivity on every validated update. The earlier unset failed validation. The final push sets a valid created-event fallback.
+.\src\case\store.js:3:    if (patch.$unset?.lastActivity) throw new Error('lastActivity is required');
+.\src\case\store.js:4:    if (!patch.$set?.lastActivity) throw new Error('lastActivity is required');
+.\src\case\store.js:5:    return patch.$set.lastActivity;
+.\src\case\refresh.js:2:  if (latest) return groups.update(groupId, { $set: { lastActivity: latest } });
+.\src\case\refresh.js:3:  return groups.update(groupId, { $set: { lastActivity: { kind: 'created' } } });
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content src/case/store.js; Get-Content src/case/context.js' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-MWvP0c
+ succeeded in 936ms:
+export function createGroups() {
+  return { update(_id, patch) {
+    if (patch.$unset?.lastActivity) throw new Error('lastActivity is required');
+    if (!patch.$set?.lastActivity) throw new Error('lastActivity is required');
+    return patch.$set.lastActivity;
+  } };
+}
+// Small synthetic PR fixture. All names and values are invented.
+
+codex
+1. **Invalid as written.** The requested absence violates the store’s requirement: `src/case/store.js:3–4` rejects unsetting or omitting `lastActivity`. At current HEAD, `src/case/refresh.js:3` replaces the draft’s `$unset` with `{ kind: 'created' }`, consistent with `PR.md:3`.
+
+   If you want to retain a test suggestion, use: “Test that removing the last activity sets `lastActivity` to the created-event fallback.”
+
+Read-only inspection only; no tests run.
+tokens used
+4,767

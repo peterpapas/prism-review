@@ -1,0 +1,21 @@
+Draft 1 — **Resolved.** “src/orders/create.ts:9 — the read then insert can race; add a unique constraint.”
+
+At draft commit `028ddb21ff40f1eb83ede9713f06114333077b49`, `requestId` had only a non-unique index, and `createOrder` inserted after its initial read without duplicate handling.
+
+At current head `1e66b11c4884d3c5fc076f955f4ec312f6d2236e`:
+
+- `src/orders/schema.ts:2` adds `unique: true`.
+- Lines 13–14 enforce uniqueness in the supplied implementation: the duplicate check and insertion execute synchronously without an intervening `await`.
+- `src/orders/create.ts:7–11` catches `DuplicateKeyError` and retrieves the existing order.
+
+Thus, even when both callers pass the initial read, the second insertion is rejected and recovers the first order. **Evidence outcome: Disproved at current head; the later change resolves the draft.** Do not post it.
+
+Reviewed the local repository’s `HEAD~1...HEAD` diff, both complete source files at both revisions, and `PR.md`. Both SHAs were rechecked and remained unchanged. Draft coverage: the single pasted draft; remote threads were not examined. No callers or tests are present in the tracked tree. The referenced worked example was unavailable.
+
+Proposed verification, **not run**: concurrently call `createOrder` twice with the same request ID; assert both return the same order and `orders.count()` equals one. No files were edited or comments posted.
+
+**No supported findings in the material examined.** Coverage was limited to this draft’s failure path; no overall PR recommendation is offered. No open questions affect its disposition.
+
+**Suggested comments for the user to consider**
+
+None.

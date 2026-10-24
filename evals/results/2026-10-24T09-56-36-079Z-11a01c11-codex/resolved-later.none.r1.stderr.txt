@@ -1,0 +1,145 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-LUIPHQ"))
+Reading additional input from stdin...
+2026-10-24T10:01:21.146989Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-XYGUDt
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d5b-9425-72a3-a856-1cf3bd03ead5
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. The draft was written at bd227b718064c957ec4cf5e4b20d22b64cdbceb2; current head is 804b9a741a1c4a49c6348ece51cca90134210cd8. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/orders/create.ts:9 — the read then insert can race; add a unique constraint.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-LUIPHQ\config.toml.
+codex
+I’ll read the PR description and compare the draft commit with the current head to check whether the race concern still applies.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git status --short; git log -3 --oneline; git diff HEAD~1 HEAD -- src/orders/create.ts; git show bd227b718064c957ec4cf5e4b20d22b64cdbceb2:src/orders/create.ts; Get-Content src/orders/create.ts; rg -n "unique|orders|idempot" .' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-XYGUDt
+ succeeded in 1191ms:
+# PR: close the order idempotency race
+
+The first revision used a read then insert with a non-unique index. A later push adds
+the database constraint and duplicate-key recovery. The draft predates that push.
+fatal: this operation must be run in a work tree
+804b9a7 head: changed code
+bd227b7 base: pre-review code
+diff --git a/src/orders/create.ts b/src/orders/create.ts
+index 46b6e4d..a5b6c54 100644
+--- a/src/orders/create.ts
++++ b/src/orders/create.ts
+@@ -1,10 +1,13 @@
+-import { orders } from './schema.ts';
++import { DuplicateKeyError, orders } from './schema.ts';
+ 
+ export async function createOrder(requestId: string) {
+   const existing = await orders.findOne({ requestId });
+   if (existing) return existing;
+ 
+-  const order = { requestId };
+-  // Both callers can pass the read before either insert.
+-  return orders.insertOne(order);
++  try {
++    return await orders.insertOne({ requestId });
++  } catch (error) {
++    if (error instanceof DuplicateKeyError) return orders.findOne({ requestId });
++    throw error;
++  }
+ }
+import { orders } from './schema.ts';
+
+export async function createOrder(requestId: string) {
+  const existing = await orders.findOne({ requestId });
+  if (existing) return existing;
+
+  const order = { requestId };
+  // Both callers can pass the read before either insert.
+  return orders.insertOne(order);
+}
+import { DuplicateKeyError, orders } from './schema.ts';
+
+export async function createOrder(requestId: string) {
+  const existing = await orders.findOne({ requestId });
+  if (existing) return existing;
+
+  try {
+    return await orders.insertOne({ requestId });
+  } catch (error) {
+    if (error instanceof DuplicateKeyError) return orders.findOne({ requestId });
+    throw error;
+  }
+}
+.\PR.md:1:# PR: close the order idempotency race
+.\PR.md:3:The first revision used a read then insert with a non-unique index. A later push adds
+.\src\orders\create.ts:1:import { DuplicateKeyError, orders } from './schema.ts';
+.\src\orders\create.ts:4:  const existing = await orders.findOne({ requestId });
+.\src\orders\create.ts:8:    return await orders.insertOne({ requestId });
+.\src\orders\create.ts:10:    if (error instanceof DuplicateKeyError) return orders.findOne({ requestId });
+.\src\orders\schema.ts:2:  requestId: { type: 'string', index: true, unique: true },
+.\src\orders\schema.ts:10:export const orders = {
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "git diff HEAD~1 HEAD -- src/orders/schema.ts; git show HEAD:src/orders/schema.ts; rg --files -g AGENTS.md -g '*migration*' -g '*schema*'" in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-XYGUDt
+ succeeded in 892ms:
+diff --git a/src/orders/schema.ts b/src/orders/schema.ts
+index 3c495cf..fb0f04b 100644
+--- a/src/orders/schema.ts
++++ b/src/orders/schema.ts
+@@ -1,8 +1,19 @@
+ export const orderSchema = {
+-  requestId: { type: 'string', index: true },
++  requestId: { type: 'string', index: true, unique: true },
+ };
+ 
++export class DuplicateKeyError extends Error {
++  code = 11000;
++}
++
++const rows: { requestId: string }[] = [];
+ export const orders = {
+-  async findOne(_query: { requestId: string }) { return null; },
+-  async insertOne(order: { requestId: string }) { return order; },
++  async findOne(query: { requestId: string }) { return rows.find((row) => row.requestId === query.requestId) ?? null; },
++  async insertOne(order: { requestId: string }) {
++    if (rows.some((row) => row.requestId === order.requestId)) throw new DuplicateKeyError('duplicate key');
++    rows.push(order);
++    return order;
++  },
++  reset() { rows.length = 0; },
++  count() { return rows.length; },
+ };
+export const orderSchema = {
+  requestId: { type: 'string', index: true, unique: true },
+};
+
+export class DuplicateKeyError extends Error {
+  code = 11000;
+}
+
+const rows: { requestId: string }[] = [];
+export const orders = {
+  async findOne(query: { requestId: string }) { return rows.find((row) => row.requestId === query.requestId) ?? null; },
+  async insertOne(order: { requestId: string }) {
+    if (rows.some((row) => row.requestId === order.requestId)) throw new DuplicateKeyError('duplicate key');
+    rows.push(order);
+    return order;
+  },
+  reset() { rows.length = 0; },
+  count() { return rows.length; },
+};
+src\orders\schema.ts
+
+codex
+1. **Resolved — do not post.** The draft predates the fix in `804b9a7`. `src/orders/schema.ts:2` now declares `requestId` unique, and lines 13–14 reject duplicates before inserting, without an intervening `await`. `src/orders/create.ts:7–11` catches `DuplicateKeyError` and retrieves the existing order. Concurrent callers can still pass the initial read, but duplicate insertion is now prevented and handled.
+
+Read-only inspection; no tests run.
+tokens used
+6,709

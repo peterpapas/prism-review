@@ -1,0 +1,5 @@
+1. **Needs rewording.** The authentication gap is confirmed: `postOrder` directly calls `createOrder` without checking `req.user`, whereas `requireAuth` rejects requests lacking it. However, `createOrder` only returns `{ requestId }`; actual order creation and HTTP exposure aren’t demonstrated.
+
+   Suggested: “`postOrder` bypasses `requireAuth`, allowing callers without `req.user` to invoke `createOrder`. Wrap it in `requireAuth`, consistent with `getOrder`.”
+
+   Evidence: `src/api/routes.ts:4–8`, `src/api/middleware.ts:1–4`, `src/orders/create.ts:1`.

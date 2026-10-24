@@ -1,0 +1,115 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-Sd1kSv"))
+Reading additional input from stdin...
+2026-10-24T10:30:15.329858Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-yCYlF9
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d76-0ab9-7882-8161-2f9b724ce2ac
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/case/count.js:2 — this framework lacks countDocuments; replace it with count(true).
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-Sd1kSv\config.toml.
+codex
+I’ll read the PR description and diff, then check the draft against the repository’s API and usage.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "Get-Content PR.md; git diff HEAD~1 HEAD -- src/case/count.js; rg -n \"countDocuments|count\\(true\\)|count\\(\" ." in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-yCYlF9
+ succeeded in 1366ms:
+# Synthetic review case report-19-framework-version
+
+The project declares framework 3.x and its server lint rule bans deprecated count().
+diff --git a/src/case/count.js b/src/case/count.js
+new file mode 100644
+index 0000000..5e89e7a
+--- /dev/null
++++ b/src/case/count.js
+@@ -0,0 +1,3 @@
++export async function countActive(collection) {
++  return collection.countDocuments({ active: true });
++}
+.\PR.md:3:The project declares framework 3.x and its server lint rule bans deprecated count().
+.\src\case\count.js:2:  return collection.countDocuments({ active: true });
+.\src\case\lint.js:1:export const serverRules = { 'no-deprecated-count': { banned: 'count', replacement: 'countDocuments', level: 'error' } };
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "rg --files -g AGENTS.md -g '*package*' -g '*framework*' -g '*lint*'; git diff --stat HEAD~1 HEAD; Get-Content package.json; Get-Content src/case/lint.js" in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-yCYlF9
+ succeeded in 1295ms:
+src\case\lint.js
+ PR.md               | 3 +++
+ src/case/count.js   | 3 +++
+ src/case/lint.js    | 1 +
+ src/case/release.js | 1 +
+ 4 files changed, 8 insertions(+)
+Get-Content: 
+Line |
+   2 |  … lint*'; git diff --stat HEAD~1 HEAD; Get-Content package.json; Get-Co …
+     |                                         ~~~~~~~~~~~~~~~~~~~~~~~~
+     | Cannot find path '<LOCAL_HOME>\AppData\Local\Temp\prism-eval-yCYlF9\package.json' because it does not exist.
+export const serverRules = { 'no-deprecated-count': { banned: 'count', replacement: 'countDocuments', level: 'error' } };
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "Get-Content src/case/release.js; git status --short; rg --files --hidden -g '"'! .git'"' -g '"'! .git/**'"'" in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-yCYlF9
+ succeeded in 1080ms:
+export const frameworkRelease = '3.2.0';
+fatal: this operation must be run in a work tree
+src\case\release.js
+src\case\lint.js
+src\case\count.js
+src\case\context.js
+PR.md
+.git\refs\heads\main
+.git\objects\fe\684eea013d4454b9eb797ea3fba5986f1ef220
+.git\info\exclude
+.git\index
+.git\hooks\update.sample
+.git\hooks\sendemail-validate.sample
+.git\hooks\push-to-checkout.sample
+.git\hooks\prepare-commit-msg.sample
+.git\hooks\pre-receive.sample
+.git\hooks\pre-rebase.sample
+.git\hooks\pre-push.sample
+.git\hooks\pre-merge-commit.sample
+.git\hooks\pre-commit.sample
+.git\hooks\pre-applypatch.sample
+.git\hooks\post-update.sample
+.git\hooks\fsmonitor-watchman.sample
+.git\hooks\commit-msg.sample
+.git\hooks\applypatch-msg.sample
+.git\HEAD
+.git\description
+.git\config
+.git\COMMIT_EDITMSG
+.git\objects\f6\d8459e408dc25a50a163d7c08e08da54d0d8d8
+.git\logs\HEAD
+.git\objects\76\3e44ce20cc967b1d4b077e5f533274f4713c04
+.git\objects\9f\6761d6c91bbc47c7d7c01e25d064f0d88729ee
+.git\logs\refs\heads\main
+.git\objects\d6\263d091e2530b7850ce827a82fb1184b6914b7
+.git\objects\53\6bf4f0acc61152d772f2a8dbf7108f20d30059
+.git\objects\7e\520b4adb403a801f46c31a8f8c62ee8c92981d
+.git\objects\b9\ee1c9d41be892bcaa4b28c6c42f28c1e3d833e
+.git\objects\75\386624bc460849350453e4406e8a9ff37bd023
+.git\objects\0f\2c3bcfe87dd1da92101754419a93b5a7a3caf5
+.git\objects\7b\e4f450d753bbef16787e85f8f877d09f5ec91d
+.git\objects\5e\d5956841f708f678d093217e5f1a6ed4c0f9e0
+.git\objects\5e\89e7a3c94c1c8d4e51498091a8d57291bf82e6
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content src/case/context.js' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-yCYlF9
+ succeeded in 922ms:
+// Small synthetic PR fixture. All names and values are invented.
+
+codex
+1. **Invalid — do not post.** The repository declares framework `3.2.0` in [release.js](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-yCYlF9/src/case/release.js:1), and its server rule explicitly bans `count` and names `countDocuments` as the replacement in [lint.js](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-yCYlF9/src/case/lint.js:1). The draft’s compatibility claim is unsupported, and its suggested replacement conflicts with the declared rule.
+tokens used
+4,902

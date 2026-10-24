@@ -1,0 +1,63 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-vw55Td"))
+Reading additional input from stdin...
+2026-10-24T10:20:19.450770Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-IUk9GP
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d6c-f2cd-7e22-8d8c-361b7d1a8e7f
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. The draft was written at da57812303956879174a852b7a4bc2210ad0785c; current head is 4fae5eb9569d228444b009e15a3b2ec4a0a8578b. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/case/login.js:3 — should the client token be validated before the raw lookup?
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-vw55Td\config.toml.
+codex
+I’ll read the PR description and compare the draft commit with the current code to check whether the comment still applies.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git status --short; git log -3 --oneline; git diff HEAD~1 HEAD -- src/case/login.js; git show da57812303956879174a852b7a4bc2210ad0785c:src/case/login.js; Get-Content src/case/login.js; rg --files -g AGENTS.md' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-IUk9GP
+ exited 1 in 1389ms:
+# Synthetic review case report-08-operator-token
+
+An earlier version sent a truthy client token into a raw database selector. A later push requires a string.
+fatal: this operation must be run in a work tree
+4fae5eb head: changed code
+da57812 base: pre-review code
+diff --git a/src/case/login.js b/src/case/login.js
+index b0ba69e..7f77b33 100644
+--- a/src/case/login.js
++++ b/src/case/login.js
+@@ -1,5 +1,5 @@
+ export async function redeemToken(token, collection) {
+-  if (!token) return null;
++  if (typeof token !== 'string' || token.length === 0) return null;
+   const row = await collection.findOneAndDelete({ token, expiresAt: { $gt: Date.now() } });
+   return row?.userId ?? null;
+ }
+export async function redeemToken(token, collection) {
+  if (!token) return null;
+  const row = await collection.findOneAndDelete({ token, expiresAt: { $gt: Date.now() } });
+  return row?.userId ?? null;
+}
+export async function redeemToken(token, collection) {
+  if (typeof token !== 'string' || token.length === 0) return null;
+  const row = await collection.findOneAndDelete({ token, expiresAt: { $gt: Date.now() } });
+  return row?.userId ?? null;
+}
+
+codex
+1. **Resolved.** At draft commit `da57812`, line 2 rejected only falsy values, allowing a truthy object into the raw selector. Current HEAD `4fae5eb` rejects non-string and empty tokens before the lookup:
+   ```js
+   if (typeof token !== 'string' || token.length === 0) return null;
+   ```
+   This addresses the concern described in `PR.md`. Don’t post the drafted comment.
+tokens used
+6,138

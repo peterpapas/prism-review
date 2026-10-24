@@ -1,0 +1,94 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-dJ2Niv"))
+Reading additional input from stdin...
+2026-10-24T10:21:41.607316Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-HKajWk
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d6e-33b2-73c1-84da-1822688fe733
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. The draft was written at 72b1730633cbfcc8a2e465170c6e0982a72242d9; current head is c30550462da5e1ed589d24e0d321953c9c348824. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/case/activity.js:2 — using an old message createdAt for every activity edit moves the group activity timestamp backwards.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-dJ2Niv\config.toml.
+codex
+I’ll read the PR description and compare the draft commit with the current code to check whether the comment still applies.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git status --short; git log -3 --oneline; git diff HEAD~1 HEAD -- src/case/activity.js; git show 72b1730633cbfcc8a2e465170c6e0982a72242d9:src/case/activity.js; Get-Content src/case/activity.js' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-HKajWk
+ succeeded in 1174ms:
+# Synthetic review case report-10-shared-writer
+
+An earlier shared-writer change used message creation time. An edit caller passes the original old message; the final push restores current activity time.
+fatal: this operation must be run in a work tree
+c305504 head: changed code
+72b1730 base: pre-review code
+diff --git a/src/case/activity.js b/src/case/activity.js
+index 89670ed..1b327f2 100644
+--- a/src/case/activity.js
++++ b/src/case/activity.js
+@@ -1,3 +1,3 @@
+ export function addActivity(group, message, now) {
+-  group.lastActivity = { messageId: message.id, timestamp: message.createdAt };
++  group.lastActivity = { messageId: message.id, timestamp: now };
+ }
+export function addActivity(group, message, now) {
+  group.lastActivity = { messageId: message.id, timestamp: message.createdAt };
+}
+export function addActivity(group, message, now) {
+  group.lastActivity = { messageId: message.id, timestamp: now };
+}
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "git ls-tree -r --name-only HEAD; rg -n 'addActivity|createdAt|lastActivity' src; git diff HEAD~1 HEAD" in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-HKajWk
+ succeeded in 983ms:
+PR.md
+src/case/activity.js
+src/case/context.js
+src/case/edit.js
+src\case\activity.js:1:export function addActivity(group, message, now) {
+src\case\activity.js:2:  group.lastActivity = { messageId: message.id, timestamp: now };
+src\case\edit.js:1:import { addActivity } from './activity.js';
+src\case\edit.js:3:  addActivity(group, originalMessage, now);
+diff --git a/PR.md b/PR.md
+new file mode 100644
+index 0000000..d551b06
+--- /dev/null
++++ b/PR.md
+@@ -0,0 +1,3 @@
++# Synthetic review case report-10-shared-writer
++
++An earlier shared-writer change used message creation time. An edit caller passes the original old message; the final push restores current activity time.
+diff --git a/src/case/activity.js b/src/case/activity.js
+index 89670ed..1b327f2 100644
+--- a/src/case/activity.js
++++ b/src/case/activity.js
+@@ -1,3 +1,3 @@
+ export function addActivity(group, message, now) {
+-  group.lastActivity = { messageId: message.id, timestamp: message.createdAt };
++  group.lastActivity = { messageId: message.id, timestamp: now };
+ }
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content src/case/edit.js; Get-Content src/case/context.js' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-HKajWk
+ succeeded in 910ms:
+import { addActivity } from './activity.js';
+export function editMessage(group, originalMessage, now) {
+  addActivity(group, originalMessage, now);
+}
+// Small synthetic PR fixture. All names and values are invented.
+
+codex
+1. **Resolved — do not post.** At draft commit `72b1730`, `addActivity` used `message.createdAt`, and the edit caller passes the original message. Current HEAD `c305504` changes the timestamp to `now` in [activity.js:2](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-HKajWk/src/case/activity.js:2), which [edit.js:3](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-HKajWk/src/case/edit.js:3) forwards. The old message’s creation time no longer determines the activity timestamp.
+
+Only read operations were performed; no tests, edits, or posts.
+tokens used
+10,172

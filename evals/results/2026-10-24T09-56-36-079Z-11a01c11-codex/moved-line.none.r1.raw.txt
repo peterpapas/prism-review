@@ -1,0 +1,5 @@
+1. **Needs rewording** — The read then insert remains unchanged; the original insert anchor moved from line 9 to [line 14](src/orders/create.ts:14). Concurrent calls can both pass the lookup at line 9 and reach insertion. The schema declares `index: true`, with no uniqueness constraint.
+
+   Suggested wording: “Concurrent calls with the same `requestId` can both pass this lookup and reach insertion. Could creation enforce idempotency atomically?”
+
+   Caveat: `schema.ts` contains stub methods with no persistence, so actual duplicate stored orders cannot be verified from this repository.

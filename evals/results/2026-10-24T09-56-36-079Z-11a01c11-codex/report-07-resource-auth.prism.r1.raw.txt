@@ -1,0 +1,18 @@
+Draft 1 — **Resolved.** The requested resource-level check was added after the draft was written.
+
+- **Before**, at `54a4aeec4a58cc0ea49d5393144aba5a2ab8bcc3`, `syncMeeting` checked login, fetched the supplied meeting ID, then pushed to its owner’s calendar without an edit-access assertion.
+- **Now**, at `305e91d593eb78c056c2d37b912a9c7b9b56857c`, [src/case/calendar.js:4](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-K6ljim/src/case/calendar.js:4) awaits `db.assertCanEdit(user, meeting)` before `calendar.push`. A thrown or rejected assertion prevents the push. This addresses the draft’s proposed correction.
+
+The original missing-check path is **Supported** by inspection; it was not executed. The assertion’s implementation is absent, so its underlying permission rules remain unverified.
+
+Target: the local repository’s `HEAD~1...HEAD`, obtained through Git diff. Both SHAs were rechecked and remained unchanged. No remote or PR number was available.
+
+Coverage: your one pasted draft, the complete base/head function, `PR.md`, and `src/case/context.js`. No callers, assertion implementation, or tests exist in the tracked fixture; remote review threads were not examined.
+
+**No supported findings in the material examined.** This was a gate of the supplied draft, so no overall PR recommendation is warranted.
+
+Proposed test, **not run**: supply a signed-in user without edit access; verify the assertion rejects and `calendar.push` is never called. No files were edited or comments posted.
+
+**Suggested comments for the user to consider**
+
+None. Do not post draft 1 as a current defect.

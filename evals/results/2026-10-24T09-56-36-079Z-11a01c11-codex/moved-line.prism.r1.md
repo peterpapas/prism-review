@@ -1,0 +1,37 @@
+# moved-line.prism.r1
+
+prompt:
+
+The pull request is the commit range HEAD~1...HEAD in this repository. The draft was written at fbf5db06970500fad5649b78bbe9fe630a1bca3f; current head is 5676fb9e11dca2c2441f97836a9c31edcba3e4e7. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/orders/create.ts:9 — the read then insert can race.
+
+---
+
+Target: local repository, `HEAD~1...HEAD`.
+- Base/draft: `fbf5db06970500fad5649b78bbe9fe630a1bca3f`
+- Head: `5676fb9e11dca2c2441f97836a9c31edcba3e4e7`
+
+Both SHAs were rechecked and remained unchanged. Evidence came from local Git diffs and file contents. Draft source: your single pasted comment; no remote threads were available.
+
+**Draft 1 — Cannot verify (evidence: Unverified).**  
+Original: `src/orders/create.ts:9 — the read then insert can race.`
+
+The read and insert remain separate awaits, so concurrent calls can both reach `insertOne`. Head only adds five comments; it does not fix or change that sequence. The original insertion anchor moved from line 9 to line 14.
+
+However, `src/orders/schema.ts:3–4` implements `findOne` as always returning `null` and `insertOne` as returning its argument without storing anything. Thus this snapshot cannot establish duplicate persisted orders or another concrete concurrency impact. The schema’s `index: true` does not declare uniqueness, but no database implementation consumes it here.
+
+Read: complete `create.ts`, `schema.ts`, `PR.md`, applicable instructions, and the base/head diff. No callers, persistence adapter, or tests are present. The referenced `references/example.md` is absent. No incidental findings.
+
+**Open question:** What real persistence implementation and uniqueness constraints back `orders`? Those are needed to establish the draft’s impact.
+
+Proposed test, not run: against that implementation, synchronize two calls with the same `requestId` so both reads finish before insertion; assert one persisted order and consistent results for both callers.
+
+**No supported findings in the material examined.** No overall PR recommendation is warranted from this limited gate. No files were edited, tests run, or comments posted.
+
+**Suggested comments for the user to consider**
+
+1. None yet. If persistence evidence supports the race, use a general comment: line 14 is outside the current diff, which only adds lines 1–5.

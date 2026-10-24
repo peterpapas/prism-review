@@ -1,0 +1,5 @@
+1. **Invalid as written.** The requested absence violates the store’s requirement: `src/case/store.js:3–4` rejects unsetting or omitting `lastActivity`. At current HEAD, `src/case/refresh.js:3` replaces the draft’s `$unset` with `{ kind: 'created' }`, consistent with `PR.md:3`.
+
+   If you want to retain a test suggestion, use: “Test that removing the last activity sets `lastActivity` to the created-event fallback.”
+
+Read-only inspection only; no tests run.

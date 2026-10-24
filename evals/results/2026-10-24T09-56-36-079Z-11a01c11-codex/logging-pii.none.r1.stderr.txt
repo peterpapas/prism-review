@@ -1,0 +1,69 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-Udkec1"))
+Reading additional input from stdin...
+2026-10-24T10:08:37.329854Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-ruUBAm
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d62-3b2d-7952-8365-2657634678eb
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Review this pull request for defects. Report only what the code supports, with path:line citations. If there is nothing actionable, say so.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-Udkec1\config.toml.
+codex
+I’ll read the PR description and diff, then inspect the affected code for actionable defects.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git diff HEAD~1...HEAD --stat; git diff HEAD~1...HEAD; rg --files -g AGENTS.md' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-ruUBAm
+ exited 1 in 1184ms:
+# PR: log order requests
+
+The request body includes requestId, email, and apiToken.
+ PR.md             | 3 +++
+ src/api/routes.ts | 5 ++++-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+diff --git a/PR.md b/PR.md
+new file mode 100644
+index 0000000..ba85606
+--- /dev/null
++++ b/PR.md
+@@ -0,0 +1,3 @@
++# PR: log order requests
++
++The request body includes requestId, email, and apiToken.
+diff --git a/src/api/routes.ts b/src/api/routes.ts
+index 44e3bdb..0f9e445 100644
+--- a/src/api/routes.ts
++++ b/src/api/routes.ts
+@@ -1,2 +1,5 @@
+ import { createOrder } from '../orders/create.ts';
+-export const postOrder = async (req: any) => createOrder(req.body.requestId);
++export const postOrder = async (req: any) => {
++  console.log('order request', req.body); // includes apiToken and email
++  return createOrder(req.body.requestId);
++};
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'rg --files; Get-Content src/api/routes.ts; Get-Content src/orders/create.ts; git status --short' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-ruUBAm
+ exited 1 in 1094ms:
+src\orders\create.ts
+src\api\routes.ts
+PR.md
+import { createOrder } from '../orders/create.ts';
+export const postOrder = async (req: any) => {
+  console.log('order request', req.body); // includes apiToken and email
+  return createOrder(req.body.requestId);
+};
+export async function createOrder(requestId: string) { return { requestId }; }
+fatal: this operation must be run in a work tree
+
+codex
+- **[P1] API token exposed in logs** — [src/api/routes.ts:3](src/api/routes.ts#L3): Logging the entire request body writes `apiToken` and `email` to standard output, exposing credentials and personal information to log readers and collectors. Log only the required identifier, such as `requestId`, or redact sensitive fields before logging.
+tokens used
+3,535

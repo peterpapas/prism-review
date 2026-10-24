@@ -1,0 +1,3 @@
+1. **Resolved.** At draft commit `ef10b9a`, only login was checked before calendar sync. Current head adds `await db.assertCanEdit(user, meeting)` at [src/case/calendar.js:4](src/case/calendar.js:4), before `calendar.push` on line 5. This addresses the requested resource-level edit check; drop the draft comment.
+
+The assertion’s implementation is absent from this fixture, so its internal correctness cannot be verified.

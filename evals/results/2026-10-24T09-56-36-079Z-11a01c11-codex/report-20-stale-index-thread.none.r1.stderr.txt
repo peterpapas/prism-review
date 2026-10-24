@@ -1,0 +1,69 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-VeHB4X"))
+Reading additional input from stdin...
+2026-10-24T10:30:40.876691Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-decbHi
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d76-6e6c-7650-9382-9dcf0219e6fd
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. The draft was written at 2569b2273f32fc8571ed065725bc90d4c260c0bd; current head is 52b7929d8cd51a6e2f126959370c2292b1dd62e4. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Visible submitted review threads:
+https://github.com/example/project/pull/20#discussion_r2000 — index missing on channelId; original draft was raised before the index was added.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/case/webhook.js:2 — the channel lookup has no index; add one before shipping.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-VeHB4X\config.toml.
+codex
+I’ll read the PR description and compare the draft commit with the current head to check whether the comment still applies.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git status --short; git log -3 --oneline; git diff HEAD~1...HEAD --; git show 2569b2273f32fc8571ed065725bc90d4c260c0bd:src/case/webhook.js; git show HEAD:src/case/webhook.js' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-decbHi
+ succeeded in 1507ms:
+# Synthetic review case report-20-stale-index-thread
+
+The description still says “index TODO”, although the code now declares the index. A submitted thread raised the original issue before the fix.
+fatal: this operation must be run in a work tree
+52b7929 head: changed code
+2569b22 base: pre-review code
+diff --git a/PR.md b/PR.md
+new file mode 100644
+index 0000000..a928b4c
+--- /dev/null
++++ b/PR.md
+@@ -0,0 +1,3 @@
++# Synthetic review case report-20-stale-index-thread
++
++The description still says “index TODO”, although the code now declares the index. A submitted thread raised the original issue before the fix.
+diff --git a/src/case/indexes.js b/src/case/indexes.js
+index df0bf4f..ce81685 100644
+--- a/src/case/indexes.js
++++ b/src/case/indexes.js
+@@ -1 +1 @@
+-export const indexes = [];
++export const indexes = [{ keys: { channelId: 1 }, partialFilter: { channelId: { $exists: true } } }];
+export async function receive(channelId, secret, db) {
+  const profile = await db.profiles.findOne({ channelId });
+  if (!profile || profile.secret !== secret) return false;
+  return true;
+}
+export async function receive(channelId, secret, db) {
+  const profile = await db.profiles.findOne({ channelId });
+  if (!profile || profile.secret !== secret) return false;
+  return true;
+}
+
+codex
+1. **Resolved.** The draft commit had an empty index list, but current head adds a `channelId: 1` index in `src/case/indexes.js:1`, with a partial filter for documents containing `channelId`. This addresses the lookup at `src/case/webhook.js:2`.
+
+   Do not post the draft: it repeats the original issue already raised in [the submitted thread](https://github.com/example/project/pull/20#discussion_r2000). `PR.md` confirms the “index TODO” description is stale.
+tokens used
+6,250

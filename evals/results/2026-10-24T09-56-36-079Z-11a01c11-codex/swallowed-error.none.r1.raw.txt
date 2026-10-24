@@ -1,0 +1,3 @@
+1. **Stands.** In `src/orders/create.ts:4–6`, `await orders.insertOne(...)` is inside an unconditional `catch` that returns `null`, discarding the error. Previously, insert failures rejected the returned promise. The implementation in `src/orders/schema.ts:2` throws `Error('database unavailable')`, which this change swallows.
+
+   This matches the stated PR intent. No callers are present, so downstream harm cannot be verified.

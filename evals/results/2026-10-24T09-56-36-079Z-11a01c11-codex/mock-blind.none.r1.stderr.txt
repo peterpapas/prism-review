@@ -1,0 +1,124 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-XqrZHp"))
+Reading additional input from stdin...
+2026-10-24T10:06:53.991991Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-11JSYd
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d60-a86b-72b1-9775-a32e36955f9d
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. spec/orders.fixture.ts:5 — the happy-path test proves concurrent duplicate requests are safe; drop the race concern.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-XqrZHp\config.toml.
+codex
+I’ll read the PR description, commit diff, and fixture to check whether the test supports that claim.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git diff HEAD~1...HEAD -- spec/orders.fixture.ts; Get-Content spec/orders.fixture.ts; git status --short' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-11JSYd
+ exited 1 in 1657ms:
+# PR: add order creation and a happy-path test
+
+The new test substitutes the insert method and invokes createOrder once. It
+does not run two requests against the persistence implementation.
+diff --git a/spec/orders.fixture.ts b/spec/orders.fixture.ts
+new file mode 100644
+index 0000000..02a233f
+--- /dev/null
++++ b/spec/orders.fixture.ts
+@@ -0,0 +1,12 @@
++import { createOrder } from '../src/orders/create.ts';
++import { orders } from '../src/orders/schema.ts';
++
++export async function happyPath() {
++  const realInsert = orders.insertOne;
++  orders.insertOne = async (order) => order; // stub: persistence is bypassed
++  try {
++    return await createOrder('id-1'); // one sequential call only
++  } finally {
++    orders.insertOne = realInsert;
++  }
++}
+import { createOrder } from '../src/orders/create.ts';
+import { orders } from '../src/orders/schema.ts';
+
+export async function happyPath() {
+  const realInsert = orders.insertOne;
+  orders.insertOne = async (order) => order; // stub: persistence is bypassed
+  try {
+    return await createOrder('id-1'); // one sequential call only
+  } finally {
+    orders.insertOne = realInsert;
+  }
+}
+fatal: this operation must be run in a work tree
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'git diff HEAD~1...HEAD; Get-Content src/orders/create.ts; Get-Content src/orders/schema.ts' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-11JSYd
+ succeeded in 1015ms:
+diff --git a/PR.md b/PR.md
+new file mode 100644
+index 0000000..b810882
+--- /dev/null
++++ b/PR.md
+@@ -0,0 +1,4 @@
++# PR: add order creation and a happy-path test
++
++The new test substitutes the insert method and invokes createOrder once. It
++does not run two requests against the persistence implementation.
+diff --git a/spec/orders.fixture.ts b/spec/orders.fixture.ts
+new file mode 100644
+index 0000000..02a233f
+--- /dev/null
++++ b/spec/orders.fixture.ts
+@@ -0,0 +1,12 @@
++import { createOrder } from '../src/orders/create.ts';
++import { orders } from '../src/orders/schema.ts';
++
++export async function happyPath() {
++  const realInsert = orders.insertOne;
++  orders.insertOne = async (order) => order; // stub: persistence is bypassed
++  try {
++    return await createOrder('id-1'); // one sequential call only
++  } finally {
++    orders.insertOne = realInsert;
++  }
++}
+diff --git a/src/orders/create.ts b/src/orders/create.ts
+new file mode 100644
+index 0000000..eca71bf
+--- /dev/null
++++ b/src/orders/create.ts
+@@ -0,0 +1,6 @@
++import { orders } from './schema.ts';
++export async function createOrder(requestId: string) {
++  const existing = await orders.findOne({ requestId });
++  if (existing) return existing;
++  return orders.insertOne({ requestId });
++}
+import { orders } from './schema.ts';
+export async function createOrder(requestId: string) {
+  const existing = await orders.findOne({ requestId });
+  if (existing) return existing;
+  return orders.insertOne({ requestId });
+}
+export const orderSchema = { requestId: { type: 'string', index: true } };
+export const orders = {
+  async findOne(_query: { requestId: string }) { return null; },
+  async insertOne(order: { requestId: string }) { return order; },
+};
+
+codex
+1. **Invalid.** `spec/orders.fixture.ts:6` replaces `insertOne` with a stub, and line 8 calls `createOrder` only once. It exercises neither concurrent duplicate requests nor real persistence, so it cannot justify dropping the race concern. `src/orders/create.ts:3–5` still performs a separate lookup followed by an insert.
+
+   Suggested replacement: “This fixture bypasses persistence and makes only one call, so it does not establish safety for concurrent duplicate requests.”
+tokens used
+7,184

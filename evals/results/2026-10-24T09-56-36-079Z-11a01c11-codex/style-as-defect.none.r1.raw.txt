@@ -1,0 +1,1 @@
+1. **Invalid for this PR.** In `HEAD~1...HEAD`, only `PR.md` changes. Both commits use `normalized` in `src/orders/create.ts`; the snake_case variable `request_id` appears only in the local file. It is outside the review range. There is also no evidence of a correctness issue warranting P1.

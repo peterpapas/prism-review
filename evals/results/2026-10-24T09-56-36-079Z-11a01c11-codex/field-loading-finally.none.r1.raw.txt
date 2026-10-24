@@ -1,0 +1,1 @@
+1. **Invalid.** In [src/search/lookup.ts:11](src/search/lookup.ts#L11), the `finally` block sets `state.loading = false` after both success and rejection. The diff shows that cleanup already existed before this PR. Do not post this comment.

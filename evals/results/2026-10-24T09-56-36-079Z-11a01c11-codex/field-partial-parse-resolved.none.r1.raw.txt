@@ -1,0 +1,1 @@
+1. **Resolved.** At draft commit `1ddbb7a`, `parseInt(raw, 10)` accepted `"1200px"` as `1200`, which passed the range check. Current head `3e8ef88` adds `/^\d+$/` validation at `src/api/dimensions.ts:3–4`, rejecting that input before parsing. Do not post this comment.

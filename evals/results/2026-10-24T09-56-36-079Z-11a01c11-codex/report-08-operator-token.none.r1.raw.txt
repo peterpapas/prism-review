@@ -1,0 +1,5 @@
+1. **Resolved.** At draft commit `da57812`, line 2 rejected only falsy values, allowing a truthy object into the raw selector. Current HEAD `4fae5eb` rejects non-string and empty tokens before the lookup:
+   ```js
+   if (typeof token !== 'string' || token.length === 0) return null;
+   ```
+   This addresses the concern described in `PR.md`. Don’t post the drafted comment.

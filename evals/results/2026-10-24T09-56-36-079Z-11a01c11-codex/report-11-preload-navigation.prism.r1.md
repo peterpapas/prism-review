@@ -1,0 +1,26 @@
+# report-11-preload-navigation.prism.r1
+
+prompt:
+
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/case/head.js:2 — move the font preload to the destination page only to save bandwidth on other pages.
+
+---
+
+Draft 1 — **Invalid. Evidence outcome: Disproved as a required fix.**
+
+Moving the preload to the destination page’s server head would miss client-side navigation: [router.js:2–3](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-GufdkE/src/case/router.js:2) updates history and renders without receiving a new server head. `PR.md:3` explicitly identifies preventing a visible font swap on that navigation as the global preload’s purpose. The extra download is a documented tradeoff; bandwidth savings alone do not establish a defect.
+
+**No supported findings in the material examined.**
+
+Reviewed all three changed files and the unchanged `context.js`. This synthetic fixture contains no destination implementation, font assets, browser measurements, or tests, so actual preload timing remains unverified. A proposed browser check—not run—is to navigate from another page to the destination with a cold cache and compare font requests and visible swapping with each preload placement.
+
+Target: local repository `<LOCAL_HOME>\AppData\Local\Temp\prism-eval-GufdkE`, `HEAD~1...HEAD`, obtained using `git diff`. Base `b5c52e571afaf7e280e6bc4c19a687433deadbe1`; head `7f8ab6abe02305399137fa986549fcd92265e2cf`. Both were rechecked and unchanged. Draft source: your single pasted comment; remote drafts and threads were not examined. The referenced `references/example.md` is absent.
+
+**Suggested comments for the user to consider**
+
+None. Omit draft 1. This gate does not support an overall PR recommendation.

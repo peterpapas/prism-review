@@ -1,0 +1,90 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-B0SwkN"))
+Reading additional input from stdin...
+2026-10-24T10:23:33.959011Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-r5EbWM
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d6f-ea71-7850-a4ff-d38b6d89886e
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/case/remove.js:5 — treat every 202 response as success, since an association may already be gone.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-B0SwkN\config.toml.
+codex
+I’ll read the PR description and commit diff, then check the draft against the removal code and its callers.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git diff HEAD~1...HEAD -- src/case/remove.js; Get-Content src/case/remove.js; rg --files -g AGENTS.md' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-r5EbWM
+ exited 1 in 1188ms:
+# Synthetic review case report-12-status-202
+
+The provider can return 404 for an already-deleted association, but the helper maps all other non-5xx failures to 202 as well.
+diff --git a/src/case/remove.js b/src/case/remove.js
+new file mode 100644
+index 0000000..80941ce
+--- /dev/null
++++ b/src/case/remove.js
+@@ -0,0 +1,8 @@
++export async function removeLink(id, provider, logger) {
++  const response = await provider.delete(id);
++  if (response.status === 200) return { removed: true };
++  if (response.status >= 500) throw new Error('provider unavailable');
++  const result = { status: 202, originalStatus: response.status };
++  logger.error('manual repair needed', result);
++  return result;
++}
+export async function removeLink(id, provider, logger) {
+  const response = await provider.delete(id);
+  if (response.status === 200) return { removed: true };
+  if (response.status >= 500) throw new Error('provider unavailable');
+  const result = { status: 202, originalStatus: response.status };
+  logger.error('manual repair needed', result);
+  return result;
+}
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'git diff HEAD~1...HEAD; rg -n "removeLink|originalStatus|202|404" .' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-r5EbWM
+ succeeded in 860ms:
+diff --git a/PR.md b/PR.md
+new file mode 100644
+index 0000000..cb45508
+--- /dev/null
++++ b/PR.md
+@@ -0,0 +1,3 @@
++# Synthetic review case report-12-status-202
++
++The provider can return 404 for an already-deleted association, but the helper maps all other non-5xx failures to 202 as well.
+diff --git a/src/case/remove.js b/src/case/remove.js
+new file mode 100644
+index 0000000..80941ce
+--- /dev/null
++++ b/src/case/remove.js
+@@ -0,0 +1,8 @@
++export async function removeLink(id, provider, logger) {
++  const response = await provider.delete(id);
++  if (response.status === 200) return { removed: true };
++  if (response.status >= 500) throw new Error('provider unavailable');
++  const result = { status: 202, originalStatus: response.status };
++  logger.error('manual repair needed', result);
++  return result;
++}
+.\PR.md:1:# Synthetic review case report-12-status-202
+.\PR.md:3:The provider can return 404 for an already-deleted association, but the helper maps all other non-5xx failures to 202 as well.
+.\src\case\remove.js:1:export async function removeLink(id, provider, logger) {
+.\src\case\remove.js:5:  const result = { status: 202, originalStatus: response.status };
+
+codex
+1. **Needs rewording.** [remove.js:5](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-r5EbWM/src/case/remove.js:5) maps every status below 500 except 200 to 202, including failures such as 401 and 403. A 202 therefore does not establish successful removal. [PR.md:3](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-r5EbWM/PR.md:3) specifically identifies 404 as the already-deleted case.
+
+   Suggested comment: “Handle provider 404 as successful removal because the association is already gone, avoiding the manual-repair error log for that case. Preserve failure handling for other statuses rather than treating every mapped 202 as success.”
+tokens used
+4,218

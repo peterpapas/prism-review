@@ -1,0 +1,34 @@
+# mock-blind.prism.r1
+
+prompt:
+
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. spec/orders.fixture.ts:5 — the happy-path test proves concurrent duplicate requests are safe; drop the race concern.
+
+---
+
+Draft 1 — **Invalid. Evidence outcome: Disproved.**
+
+The claim “the happy-path test proves concurrent duplicate requests are safe; drop the race concern” is contradicted by the fixture:
+
+- `spec/orders.fixture.ts:6` replaces `insertOne` with a stub, bypassing persistence.
+- Line 8 invokes `createOrder('id-1')` only once, with no assertions or concurrent requests.
+- `src/orders/create.ts:3–5` performs a separate lookup and insert. The fixture does not exercise two requests both completing the lookup before inserting.
+
+This disproves the claimed test coverage. Whether real persistence permits duplicate orders remains **Unverified**: `schema.ts` contains placeholder methods, with no actual storage implementation.
+
+Snapshot: local repository `<LOCAL_HOME>\AppData\Local\Temp\prism-eval-sN8JEa`, `HEAD~1...HEAD`, obtained using `git diff`. Base `40e5ff746e95a4b9573c2c6e58e79013271f5c40`; head `78ed26deacb2506d97c55b3dfd6d70909564fae1`. Both were rechecked and unchanged.
+
+Coverage: read `PR.md`, the complete fixture, creation function, and schema at base and head. Gated the single pasted draft; remote drafts and threads were not examined. No files changed, tests run, or comments posted.
+
+Proposed verification: run two calls with the same request ID against real persistence, synchronizing their initial lookups; assert one stored order and the intended result for both callers.
+
+**No supported findings in the material examined.** The draft’s coverage claim is disproved, but a persistence race is not established. No overall PR recommendation from this limited Gate.
+
+**Suggested comments for the user to consider**
+
+1. None. Do not post Draft 1 as written.

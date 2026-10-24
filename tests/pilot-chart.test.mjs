@@ -18,3 +18,10 @@ test('clean Codex chart matches saved rows and final outputs', () => {
     stdio: 'pipe',
   });
 });
+
+test('expanded Codex chart matches the saved forty-probe run', () => {
+  execFileSync(process.execPath, [join(root, 'evals/render-expanded-chart.mjs'), '--check'], {
+    cwd: root,
+    stdio: 'pipe',
+  });
+});

@@ -1,0 +1,75 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-s3L7bl"))
+Reading additional input from stdin...
+2026-10-24T10:11:50.293446Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-OeeRwM
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d65-2e1f-7922-8960-ad74f9c36dba
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/search/lookup.ts:6 — a rejected request leaves loading true because it resets only after success.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-s3L7bl\config.toml.
+codex
+I’ll read the PR description and diff, then check the loading path against the draft comment.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git diff HEAD~1...HEAD -- src/search/lookup.ts; Get-Content src/search/lookup.ts' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-OeeRwM
+ succeeded in 956ms:
+# PR: refresh search results and errors
+
+The change clears stale results on failure and clears stale errors on success.
+The request and its loading cleanup existed before this change. Check both
+outcomes before accepting a draft about a stuck loading indicator.
+diff --git a/src/search/lookup.ts b/src/search/lookup.ts
+index d258643..1416565 100644
+--- a/src/search/lookup.ts
++++ b/src/search/lookup.ts
+@@ -4,8 +4,10 @@ export async function lookup(run: () => Promise<string[]>, state: SearchState) {
+   state.loading = true;
+   try {
+     state.results = await run();
++    state.error = null;
+   } catch (error) {
+     state.error = error instanceof Error ? error.message : 'Search failed';
++    state.results = [];
+   } finally {
+     state.loading = false;
+   }
+export interface SearchState { loading: boolean; results: string[]; error: string | null }
+
+export async function lookup(run: () => Promise<string[]>, state: SearchState) {
+  state.loading = true;
+  try {
+    state.results = await run();
+    state.error = null;
+  } catch (error) {
+    state.error = error instanceof Error ? error.message : 'Search failed';
+    state.results = [];
+  } finally {
+    state.loading = false;
+  }
+}
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'rg --files -g AGENTS.md; git status --short; rg -n "loading|lookup" src/search' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-OeeRwM
+ succeeded in 932ms:
+fatal: this operation must be run in a work tree
+src/search\lookup.ts:1:export interface SearchState { loading: boolean; results: string[]; error: string | null }
+src/search\lookup.ts:3:export async function lookup(run: () => Promise<string[]>, state: SearchState) {
+src/search\lookup.ts:4:  state.loading = true;
+src/search\lookup.ts:12:    state.loading = false;
+
+codex
+1. **Invalid.** In [src/search/lookup.ts:11](src/search/lookup.ts#L11), the `finally` block sets `state.loading = false` after both success and rejection. The diff shows that cleanup already existed before this PR. Do not post this comment.
+tokens used
+6,094

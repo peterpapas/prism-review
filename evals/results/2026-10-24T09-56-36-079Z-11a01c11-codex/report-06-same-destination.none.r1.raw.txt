@@ -1,0 +1,1 @@
+1. **Resolved — don’t post.** The draft commit lacked a same-contact guard, so the concern applied then. Current HEAD adds `if (sourceId === targetId) return targetId;` at `src/case/move.js:4`, before copying or deleting associations or clearing the role. When both emails resolve to the same contact ID, those operations are skipped.

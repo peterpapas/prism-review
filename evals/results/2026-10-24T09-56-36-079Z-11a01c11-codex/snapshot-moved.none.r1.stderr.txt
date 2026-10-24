@@ -1,0 +1,133 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-CuqtaS"))
+Reading additional input from stdin...
+2026-10-24T10:10:03.016398Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-WpNeJH
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d63-8af8-75a2-b548-5e3e1a24922a
+--------
+user
+The review began with base aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa and head 4d35e0244f771b68873f969f93b798674eb0f554; the checkout is now at 5f5a820a2c76bb3e56340e3ed1745e47b8fa45df. Verify the pinned base and head before reporting. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/orders/create.ts:9 — the read then insert can race; add a unique constraint.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-CuqtaS\config.toml.
+codex
+I’ll read PR.md and verify the pinned commits, then check the draft against the original diff. I’ll keep this read-only and won’t run tests or post anything.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git status --short; git rev-parse HEAD; git cat-file -t aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa; git cat-file -t 4d35e0244f771b68873f969f93b798674eb0f554; rg --files -g AGENTS.md' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-WpNeJH
+ exited 1 in 1392ms:
+# PR: idempotent order creation
+
+The original reviewed head introduced createOrder. A later commit advanced the
+head while the review was in progress.
+fatal: this operation must be run in a work tree
+5f5a820a2c76bb3e56340e3ed1745e47b8fa45df
+fatal: git cat-file: could not get object info
+commit
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'git rev-parse --is-bare-repository; git log --all --oneline --decorate -8; git show 4d35e0244f771b68873f969f93b798674eb0f554:src/orders/create.ts; git show 5f5a820a2c76bb3e56340e3ed1745e47b8fa45df:src/orders/create.ts; git ls-tree -r --name-only 4d35e0244f771b68873f969f93b798674eb0f554' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-WpNeJH
+ succeeded in 1094ms:
+false
+5f5a820 (HEAD -> main) head: changed code
+4d35e02 drafted: reviewed head
+68a7ea1 base: pre-review code
+import { orders } from './schema.ts';
+export async function createOrder(requestId: string) {
+  const existing = await orders.findOne({ requestId });
+  if (existing) return existing;
+  const order = { requestId };
+  // This head was reviewed before the next push.
+  return orders.insertOne(order);
+}
+import { DuplicateKeyError, orders } from './schema.ts';
+export async function createOrder(requestId: string) {
+  const existing = await orders.findOne({ requestId });
+  if (existing) return existing;
+  try {
+    return await orders.insertOne({ requestId });
+  } catch (error) {
+    if (error instanceof DuplicateKeyError) return orders.findOne({ requestId });
+    throw error;
+  }
+}
+src/orders/create.ts
+src/orders/schema.ts
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'git show 4d35e0244f771b68873f969f93b798674eb0f554:src/orders/schema.ts; git show 5f5a820a2c76bb3e56340e3ed1745e47b8fa45df:src/orders/schema.ts; git diff 4d35e0244f771b68873f969f93b798674eb0f554 5f5a820a2c76bb3e56340e3ed1745e47b8fa45df -- src/orders; git rev-parse --verify aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa''^{commit}' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-WpNeJH
+ exited 1 in 1035ms:
+export const orderSchema = { requestId: { type: 'string', index: true } };
+export const orders = {
+  async findOne(_query: { requestId: string }) { return null; },
+  async insertOne(order: { requestId: string }) { return order; },
+};
+export const orderSchema = { requestId: { type: 'string', index: true, unique: true } };
+export class DuplicateKeyError extends Error {}
+const rows: { requestId: string }[] = [];
+export const orders = {
+  async findOne(query: { requestId: string }) { return rows.find((row) => row.requestId === query.requestId) ?? null; },
+  async insertOne(order: { requestId: string }) {
+    if (rows.some((row) => row.requestId === order.requestId)) throw new DuplicateKeyError('duplicate key');
+    rows.push(order);
+    return order;
+  },
+};
+diff --git a/src/orders/create.ts b/src/orders/create.ts
+index 7bc100a..0a9f39b 100644
+--- a/src/orders/create.ts
++++ b/src/orders/create.ts
+@@ -1,8 +1,11 @@
+-import { orders } from './schema.ts';
++import { DuplicateKeyError, orders } from './schema.ts';
+ export async function createOrder(requestId: string) {
+   const existing = await orders.findOne({ requestId });
+   if (existing) return existing;
+-  const order = { requestId };
+-  // This head was reviewed before the next push.
+-  return orders.insertOne(order);
++  try {
++    return await orders.insertOne({ requestId });
++  } catch (error) {
++    if (error instanceof DuplicateKeyError) return orders.findOne({ requestId });
++    throw error;
++  }
+ }
+diff --git a/src/orders/schema.ts b/src/orders/schema.ts
+index 481e415..7c24974 100644
+--- a/src/orders/schema.ts
++++ b/src/orders/schema.ts
+@@ -1,5 +1,11 @@
+-export const orderSchema = { requestId: { type: 'string', index: true } };
++export const orderSchema = { requestId: { type: 'string', index: true, unique: true } };
++export class DuplicateKeyError extends Error {}
++const rows: { requestId: string }[] = [];
+ export const orders = {
+-  async findOne(_query: { requestId: string }) { return null; },
+-  async insertOne(order: { requestId: string }) { return order; },
++  async findOne(query: { requestId: string }) { return rows.find((row) => row.requestId === query.requestId) ?? null; },
++  async insertOne(order: { requestId: string }) {
++    if (rows.some((row) => row.requestId === order.requestId)) throw new DuplicateKeyError('duplicate key');
++    rows.push(order);
++    return order;
++  },
+ };
+fatal: Needed a single revision
+
+codex
+Pinned verification: head `4d35e0244f771b68873f969f93b798674eb0f554` exists, but base `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` is unavailable. Current HEAD is `5f5a820a2c76bb3e56340e3ed1745e47b8fa45df`. The pinned review diff therefore **cannot be verified**.
+
+1. **Resolved in current HEAD; cannot fully verify against the pinned base.** The reviewed head reads before inserting and declares only `index: true`. Current HEAD adds `unique: true`, rejects duplicate request IDs in `insertOne`, and catches `DuplicateKeyError` to return the existing order. Don’t post this draft against current HEAD. Also, its line anchor needs correction: the reviewed file has only eight lines; insertion is at line 7.
+
+Only read operations were performed; no tests or posts.
+tokens used
+5,083

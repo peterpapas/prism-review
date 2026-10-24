@@ -1,0 +1,61 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-EKOqFY"))
+Reading additional input from stdin...
+2026-10-24T10:21:29.851093Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-83VG6b
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d6e-0593-7ce3-825c-393e11bba55c
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. The draft was written at 911918ed9ad8c152abdf6d2fd74332596ea3c73a; current head is aac0b46cc35196be9e1337ba4c9f3348999e3412. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/case/invite.js:4 — the invite guard reads accessType, but the projection excludes it.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-EKOqFY\config.toml.
+codex
+I’ll read the PR description and compare the draft commit with the current head to check whether the comment still applies.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git status --short; git log -2 --oneline; git diff HEAD~1 HEAD -- src/case/invite.js; git show HEAD:src/case/invite.js; git show 911918ed9ad8c152abdf6d2fd74332596ea3c73a:src/case/invite.js' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-83VG6b
+ succeeded in 1298ms:
+# Synthetic review case report-09-projection-guard
+
+A draft identified a guard reading an omitted projected field. The final revision includes it.
+fatal: this operation must be run in a work tree
+aac0b46 head: changed code
+911918e base: pre-review code
+diff --git a/src/case/invite.js b/src/case/invite.js
+index 5bf1b34..b05f68b 100644
+--- a/src/case/invite.js
++++ b/src/case/invite.js
+@@ -1,5 +1,5 @@
+ export async function canInvite(id, db) {
+-  const project = await db.findOne(id, { name: 1 });
++  const project = await db.findOne(id, { name: 1, accessType: 1 });
+   if (!project) return false;
+   if (project.accessType === 'invite-only') return false;
+   return true;
+export async function canInvite(id, db) {
+  const project = await db.findOne(id, { name: 1, accessType: 1 });
+  if (!project) return false;
+  if (project.accessType === 'invite-only') return false;
+  return true;
+}
+export async function canInvite(id, db) {
+  const project = await db.findOne(id, { name: 1 });
+  if (!project) return false;
+  if (project.accessType === 'invite-only') return false;
+  return true;
+}
+
+codex
+1. **Resolved.** At draft commit `911918e`, the projection on line 2 included only `{ name: 1 }`, while the guard on line 4 read `project.accessType`. Current head `aac0b46` adds `accessType: 1` to that projection, fixing the omission. Do not post this comment.
+tokens used
+6,114

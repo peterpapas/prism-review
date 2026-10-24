@@ -1,0 +1,109 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-uSd50Y"))
+Reading additional input from stdin...
+2026-10-24T10:14:24.901815Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-PaKD3l
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d67-89ae-7050-8362-d70022a96be7
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/case/connection.js:7 — the empty-connection branch clears by id only; a reconnect between read and write is wiped. Condition the absent state or skip the write.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-uSd50Y\config.toml.
+codex
+I’ll read the PR description and diff, then check the draft against the surrounding code.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content PR.md; git diff HEAD~1...HEAD -- src/case/connection.js; Get-Content src/case/connection.js; rg --files -g AGENTS.md' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-PaKD3l
+ exited 1 in 993ms:
+# Synthetic review case report-01-conditional-clear
+
+A queued cleanup job now runs for profiles with and without a saved connection. A second read can occur before the final write.
+diff --git a/src/case/connection.js b/src/case/connection.js
+new file mode 100644
+index 0000000..ebf2260
+--- /dev/null
++++ b/src/case/connection.js
+@@ -0,0 +1,9 @@
++export async function revokeAndClear(id, db) {
++  const current = await db.get(id);
++  if (current.connection) await db.revoke(current.connection.grant);
++  await db.otherRead();
++  const selector = current.connection
++    ? { id, 'connection.id': current.connection.id }
++    : { id };
++  await db.update(selector, { $unset: { connection: 1 } });
++}
+export async function revokeAndClear(id, db) {
+  const current = await db.get(id);
+  if (current.connection) await db.revoke(current.connection.grant);
+  await db.otherRead();
+  const selector = current.connection
+    ? { id, 'connection.id': current.connection.id }
+    : { id };
+  await db.update(selector, { $unset: { connection: 1 } });
+}
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "git diff --stat HEAD~1...HEAD; rg --files --hidden -g '"'! .git'"' -g '"'!node_modules'"' -g '"'! .git/**'"'; Get-ChildItem -Path .. -Filter AGENTS.md -Force; git status --short" in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-PaKD3l
+ exited 1 in 1127ms:
+ PR.md                  | 3 +++
+ src/case/connection.js | 9 +++++++++
+ 2 files changed, 12 insertions(+)
+src\case\context.js
+src\case\connection.js
+PR.md
+.git\refs\heads\main
+.git\objects\eb\f2260edfe2ed1734cfd2ec4ebc4517c4efce27
+.git\config
+.git\COMMIT_EDITMSG
+.git\description
+.git\HEAD
+.git\index
+.git\objects\7e\520b4adb403a801f46c31a8f8c62ee8c92981d
+.git\objects\27\d848af5545d52196efcda4f0ee56508952bd6d
+.git\info\exclude
+.git\hooks\update.sample
+.git\hooks\sendemail-validate.sample
+.git\hooks\push-to-checkout.sample
+.git\hooks\prepare-commit-msg.sample
+.git\hooks\pre-receive.sample
+.git\hooks\pre-rebase.sample
+.git\hooks\pre-push.sample
+.git\hooks\pre-merge-commit.sample
+.git\hooks\pre-commit.sample
+.git\hooks\pre-applypatch.sample
+.git\hooks\post-update.sample
+.git\hooks\fsmonitor-watchman.sample
+.git\hooks\commit-msg.sample
+.git\hooks\applypatch-msg.sample
+.git\objects\f8\7cb158d8e526bc97c42fea5f47aa824a99fd5b
+.git\logs\HEAD
+.git\objects\ea\2af847f0b6d62e6df93ad2c974c2ccb5feef44
+.git\objects\b4\199260ea512b674a93cb585b896830d9ddfbd1
+.git\objects\1d\aa96f07a9cea16aab17e426c423b8babf92452
+.git\objects\5f\13d301773c5073ac4e6dd207fe4c2ce6b25a9c
+.git\objects\7b\e4f450d753bbef16787e85f8f877d09f5ec91d
+.git\logs\refs\heads\main
+.git\objects\5e\d5956841f708f678d093217e5f1a6ed4c0f9e0
+.git\objects\76\3e44ce20cc967b1d4b077e5f533274f4713c04
+fatal: this operation must be run in a work tree
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'Get-Content src/case/context.js' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-PaKD3l
+ succeeded in 944ms:
+// Small synthetic PR fixture. All names and values are invented.
+
+codex
+1. **Stands.** In [connection.js:7](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-PaKD3l/src/case/connection.js:7), an initially absent connection produces selector `{ id }`. If a reconnect saves a connection after `db.get(id)` and before `db.update(...)`, the unconditional `$unset` removes it. The intervening `await db.otherRead()` provides an explicit opportunity for that interleaving. The populated branch guards against replacement using `connection.id`; the empty branch has no equivalent guard. Conditioning the update on continued absence, or skipping it, addresses the race.
+tokens used
+4,616

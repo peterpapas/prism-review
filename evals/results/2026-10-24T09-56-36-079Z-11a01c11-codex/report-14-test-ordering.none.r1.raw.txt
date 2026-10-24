@@ -1,0 +1,5 @@
+1. **Needs rewording.** [seriesTest](spec/cancel.fixture.js:3) already checks the final sequence value is `1`; [singleTest](spec/cancel.fixture.js:4) checks it is `0`. The missing coverage is ordering: neither checks the sequence inside `notify`, although `PR.md` identifies that guarantee.
+
+   Suggested comment: “These tests check only final sequence values. Please assert inside `notify` that the series sequence has already been claimed; the current series test would also pass if claiming happened after notification.”
+
+Read only; no tests run or comments posted.

@@ -1,0 +1,16 @@
+Draft 1 **Stands — Supported (P2).** The catch hides every error thrown by `orders.insertOne`. In this snapshot, `src/orders/schema.ts:2` always throws `Error('database unavailable')`. Previously, `createOrder` propagated that rejection; now it fulfills with `null`, losing the error and its cause. No guard or alternative error reporting exists in the examined code.
+
+[P2] src/orders/create.ts:5 — Insert failures become successful promise resolutions containing `null`. Evidence: the awaited insert at line 4 rejects, and the unconditional catch returns `null`. Fix: propagate unexpected database errors. Proof: Supported; traced without execution.
+
+Target: local repository `<LOCAL_HOME>\AppData\Local\Temp\prism-eval-hFaiLq`, `HEAD~1...HEAD`, obtained with `git diff`. Both SHAs were rechecked and remained unchanged:
+
+- Base: `6acb1355ec3b698995e800ad5c745ce3ceea4fd3`
+- Head: `63805663629e2935cd471a8092ddd8fe0f6f4c11`
+
+Coverage: checked your one pasted draft, `PR.md`, the complete base/head function, and the schema implementation. No callers or tests were present. External consumers and review threads were unavailable; their behavior and duplicate-comment status remain unknown. No additional findings or overall PR recommendation from this scoped gate. The referenced example file was absent.
+
+Proposed test, not run: call `createOrder('test-request')` with the existing throwing insert implementation; assert rejection with `database unavailable`. The current catch would instead resolve to `null`. Nothing was edited, executed as a test, or posted.
+
+**Suggested comments for the user to consider**
+
+1. **src/orders/create.ts:5, RIGHT side (added line):** “This catch converts every insert failure into a fulfilled promise containing `null`. The current insert implementation throws `database unavailable`, so callers lose the database error that previously propagated. Please preserve unexpected errors, limiting any `null` fallback to explicitly handled cases.”

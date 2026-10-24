@@ -1,0 +1,143 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "<LOCAL_HOME>\\AppData\\Local\\Temp\\" (codex_home: AbsolutePathBuf("<LOCAL_HOME>\\AppData\\Local\\Temp\\prism-codex-home-UZbjF1"))
+Reading additional input from stdin...
+2026-10-24T10:01:00.068947Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.163.0-alpha.11.2
+--------
+workdir: <LOCAL_HOME>\AppData\Local\Temp\prism-eval-sLJkAM
+model: gpt-6.1-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a16d5b-422a-7ca3-9806-ced5f57c11c8
+--------
+user
+The pull request is the commit range HEAD~1...HEAD in this repository. PR.md describes it. Only read; do not edit files, run tests, or post anything.
+
+Gate these drafted review comments before I post them. For each one, say whether it stands, needs rewording, is resolved, is invalid, or cannot be verified, with the evidence.
+
+Drafts:
+1. src/billing/charge.ts:12 — `charge()` runs before the order is persisted, so a failed insert still bills the customer.
+warning: Under-development features enabled: prefer_mxc. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in <LOCAL_HOME>\AppData\Local\Temp\prism-codex-home-UZbjF1\config.toml.
+codex
+I’ll read the PR description and diff, then check the draft against the code and transaction behavior.
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "Get-Content PR.md; git diff HEAD~1...HEAD -- src/billing/charge.ts; rg --files -g AGENTS.md -g '*charge*' -g '*order*' -g '*billing*'" in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-sLJkAM
+ succeeded in 1482ms:
+# PR: idempotent order creation
+
+Adds `createOrder` (src/orders/create.ts) and wires it to the API through
+`postOrder` (src/api/routes.ts). Base commit holds the schema and the test;
+head commit adds the two new files.
+spec\orders.fixture.ts
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command 'git diff HEAD~1...HEAD; rg --files; Get-Content src/billing/charge.ts' in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-sLJkAM
+ exited 1 in 1210ms:
+diff --git a/PR.md b/PR.md
+new file mode 100644
+index 0000000..45c2b4c
+--- /dev/null
++++ b/PR.md
+@@ -0,0 +1,5 @@
++# PR: idempotent order creation
++
++Adds `createOrder` (src/orders/create.ts) and wires it to the API through
++`postOrder` (src/api/routes.ts). Base commit holds the schema and the test;
++head commit adds the two new files.
+diff --git a/src/api/routes.ts b/src/api/routes.ts
+new file mode 100644
+index 0000000..2fd5d69
+--- /dev/null
++++ b/src/api/routes.ts
+@@ -0,0 +1,8 @@
++import { createOrder } from '../orders/create.ts';
++
++const orderInput = { requestId: 'uuid' };
++const validateBody = (_schema: unknown) => async (requestId: string) => {
++  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)) throw new Error('Invalid UUID');
++  return createOrder(requestId);
++};
++export const postOrder = validateBody(orderInput);
+diff --git a/src/orders/create.ts b/src/orders/create.ts
+new file mode 100644
+index 0000000..37acc29
+--- /dev/null
++++ b/src/orders/create.ts
+@@ -0,0 +1,10 @@
++import { orders } from './schema.ts';
++
++export async function createOrder(requestId: string) {
++  const existing = await orders.findOne({ requestId });
++  if (existing) return existing;
++
++  const order = { requestId, state: 'new' };
++  // A second worker may pass the read before either worker inserts.
++  return orders.insertOne(order);
++}
+src\orders\schema.ts
+src\orders\create.ts
+src\api\routes.ts
+spec\orders.fixture.ts
+PR.md
+Get-Content: 
+Line |
+   2 |  git diff HEAD~1...HEAD; rg --files; Get-Content src/billing/charge.ts
+     |                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Cannot find path '<LOCAL_HOME>\AppData\Local\Temp\prism-eval-sLJkAM\src\billing\charge.ts' because it does not exist.
+
+exec
+"<LOCAL_HOME>\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe" -Command "Get-Content src/orders/schema.ts; Get-Content spec/orders.fixture.ts; git ls-tree -r --name-only HEAD; git ls-tree -r --name-only HEAD~1; rg -n 'charge|bill|payment|insertOne' ." in <LOCAL_HOME>\AppData\Local\Temp\prism-eval-sLJkAM
+ succeeded in 1105ms:
+export const orderSchema = {
+  requestId: { type: 'string', index: true },
+};
+
+export type Order = { requestId: string; state: string };
+
+// In-memory stand-in for the collection so the fixture can be executed by tests/fixture-oracle.test.mjs.
+// The requestId index is NOT unique: insertOne never rejects a duplicate.
+const rows: Order[] = [];
+export const orders = {
+  async findOne(query: { requestId: string }): Promise<Order | null> {
+    return rows.find((r) => r.requestId === query.requestId) ?? null;
+  },
+  async insertOne(order: Order): Promise<Order> {
+    rows.push(order);
+    return order;
+  },
+  async count(): Promise<number> {
+    return rows.length;
+  },
+  reset(): void {
+    rows.length = 0;
+  },
+};
+import { createOrder } from '../src/orders/create.ts';
+import { orders } from '../src/orders/schema.ts';
+
+// Sequential calls only: this does not exercise concurrent inserts.
+export async function happyPath(): Promise<number> {
+  orders.reset();
+  await createOrder('id-1');
+  await createOrder('id-1');
+  return orders.count();
+}
+PR.md
+spec/orders.fixture.ts
+src/api/routes.ts
+src/orders/create.ts
+src/orders/schema.ts
+spec/orders.fixture.ts
+src/orders/schema.ts
+.\src\orders\schema.ts:8:// The requestId index is NOT unique: insertOne never rejects a duplicate.
+.\src\orders\schema.ts:14:  async insertOne(order: Order): Promise<Order> {
+.\src\orders\create.ts:9:  return orders.insertOne(order);
+
+codex
+1. **Invalid.** `src/billing/charge.ts` exists in neither commit, and the repository contains no `charge()` call or billing code. The added [`createOrder()`](<LOCAL_HOME>/AppData/Local/Temp/prism-eval-sLJkAM/src/orders/create.ts:3) only checks for an existing order and inserts one at line 9. There is no evidence supporting the claimed billing-before-persistence behavior. Drop this comment.
+
+Read-only review; no tests run or files changed.
+tokens used
+4,831
